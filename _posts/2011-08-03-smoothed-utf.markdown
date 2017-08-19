@@ -24,12 +24,12 @@ That said the smoothed UKF is still useful as:
   2. a timeseries of smoothed prior states can be regressed to project a smoothed forward state (but is not part of the UKF framework)
 
 
-The form of UKF smoother that will briefly discuss is the forward-backward smoother.   As the name suggests, the first pass is to perform standard UKF filter, estimating the distribution $latex p({x_t}|{x_{t - 1}},{y_{1:t}})$ at each timestep.  Whereas the smoothing estimates a smoothed distribution in reverse, implying $latex p(x_{t - 1}^S|x_t^S,\Sigma _t^S)$.   The boundary $latex x_T^S,\Sigma _T^S$ is simply the last state and covariance estimated by the forward filter.
+The form of UKF smoother that will briefly discuss is the forward-backward smoother.   As the name suggests, the first pass is to perform standard UKF filter, estimating the distribution $latex p({x_t}|{x_{t - 1}},{y_{1:t} })$ at each timestep.  Whereas the smoothing estimates a smoothed distribution in reverse, implying $latex p(x_{t - 1}^S|x_t^S,\Sigma _t^S)$.   The boundary $latex x_T^S,\Sigma _T^S$ is simply the last state and covariance estimated by the forward filter.
 
 The smoothing approach is then for each $latex x_{t }^S, \Sigma _t^S$, determine the predicted $latex x_{t+1 }^-, \Sigma _{t+1}^-, \Sigma _{t,t+1}^-$, and back out an appropriate adjustment given a computed kalman gain and the difference between the predicted t+1 and actual t+1 state:
 
 
-$latex \left[\mu _{t+1}^ - ,\sum _{t+1}^ - ,\sum _{t,t + 1}^ - \right] = UT\left( {{X_t},\sum _{t,t}^{},f(.), \cdots } \right)$
+$latex \left[\mu _{t+1}^ - ,\sum _{t+1}^ - ,\sum _{t,t + 1}^ - \right] = UT\left( { {X_t},\sum _{t,t}^{},f(.), \cdots } \right)$
 
 
 
