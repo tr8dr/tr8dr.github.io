@@ -19,7 +19,7 @@ With the embedding vector we are trying to find a vector series that maximizes c
 
 In searching for the appropriate embedding dimension and lag, we vary these quantities.  Increasing embedding dimension, for instance, is adding new variables to the system.
 
-So for instance, let us say we have a system of 2 variables **A** and **B**, with a timeseries of {{A0,B0}, {A1,B1}, ...} pairs.   Our embedding vector starts at dimension 2 { A[t], B[t] }.   Increasing the dimension, we have { A[t], B[t], A[t-1], B[t-1] } and so on.
+So for instance, let us say we have a system of 2 variables **A** and **B**, with a timeseries of { {A0,B0}, {A1,B1}, ...} pairs.   Our embedding vector starts at dimension 2 { A[t], B[t] }.   Increasing the dimension, we have { A[t], B[t], A[t-1], B[t-1] } and so on.
 
 Having added A[t-1], B[t-1], we may have increased the correlation between neighbors, but cannot be certain if we just observe the change in entropy without a relative measure for the same system variables.   We may have increased or decreased entropy just by adding a new dimensions, in addition to the correlation effect.
 
