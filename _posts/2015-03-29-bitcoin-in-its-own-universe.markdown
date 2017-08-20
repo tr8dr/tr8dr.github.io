@@ -72,11 +72,11 @@ BTCcoint1 = Johansen (Pbtc14[['BTC','IEF']], p=1, k=1)
 BTCcoint1.critical_trace
 ```
 
+
  lag | trace | 90% | 95% | 99% 
 -----|-------|-----|-----|-----
  0 | 19.298 | 16.162 | 18.399 | 23.149 
  1 | 5.768 | 2.706 | 3.842 | 6.635 
-
 
 ## Findings
 
