@@ -20,54 +20,34 @@ An interesting inverse problem was posed by a colleague of mine.   Supposing on
 
 
 	
-  1. whether the portfolio is hedged
-
-	
-  2. what positions it was running (assuming it is not hedged)
+1. whether the portfolio is hedged	
+2. what positions it was running (assuming it is not hedged)
 
 
 This problem cannot be solved definitively as any view on hedging or risk assumes a model of forward price dynamics.   However, I thought a reasonable way to approach this would be to:
 
 	
-  1. **determine multivariate model of mean-reversion across assets**
-
+1. **determine multivariate model of mean-reversion across assets**	
+   - this would allow us to pair more loosely associated assets that tend to mean-revert as opposed to limiting our hedging to assets with a tightly coupled dynamic (i.e. close to 100% correlated)
 	
-    1. this would allow us to pair more loosely associated assets that tend to mean-revert as opposed to limiting our hedging to assets with a tightly coupled dynamic (i.e. close to 100% correlated)
+2. **determine risk measure on residual portfolio** (after factoring out mean-reverting positions)
+   - i.e. we reduce the portfolio positions by scaled mean-reverting sub-portfolios.   If fully hedged, after these reductions, the residual portfolio positions would be close to 0.
 
 
 
 
-	
-  2. **determine risk measure on residual portfolio (**after factoring out mean-reverting positions)
-
-	
-    1. i.e. we reduce the portfolio positions by scaled mean-reverting sub-portfolios.   If fully hedged, after these reductions, the residual portfolio positions would be close to 0.
-
-
-
-
-
-**Mean Reversion Model**
+## Mean Reversion Model
 
 There are a variety of choices for mean-reversion model.   Some of the simplest are:
 
 
-
 	
-  1. Multivariate Ornstein-Uhlenbeck process:
-![Mean Reversion](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-13-17-am.png)
-
-	
-  2. Vector Error Correction Model (VECM)
-![Screen Shot 2015-05-02 at 10.18.17 AM](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-18-17-am.png)
-
-	
-  3. PCA or ICA based decompositions
-
-	
-    1. Can use the vectors produced in decomposition to produce mean-reverting sub-portfolios
-
-
+1. Multivariate Ornstein-Uhlenbeck process:
+![Mean Reversion](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-13-17-am.png){: .vcenter-image}	
+2. Vector Error Correction Model (VECM)
+![Screen Shot 2015-05-02 at 10.18.17 AM](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-18-17-am.png){: .vcenter-image}	
+3. PCA or ICA based decompositions
+   - Can use the vectors produced in decomposition to produce mean-reverting sub-portfolios
 
 
 
@@ -75,20 +55,14 @@ Regardless of which formulation we start with, can express hedges as a combinati
 
 For example in a portfolio containing EUR, JPY, CHF, one (cointegrating) weight vector would be: [ 1.0, 0.0, -1.0 ].
 
-**Optimisation Problem**
+## Optimisation Problem
 
 Assuming we have:
 
-
-
 	
-  1. mean-reverting vectors β0, β1, ..., βn
-
-	
-  2. covariance matrix of returns on **x** over period ΔT, **Σ**ΔT
-
-	
-  3. net portfolio positions: **Q**t
+1. mean-reverting vectors β0, β1, ..., βn	
+2. covariance matrix of returns on **x** over period ΔT, **Σ**ΔT
+3. net portfolio positions: **Q**t
 
 
 The goal is to find the smallest net portfolio after subtracting scaled mean-reverting vectors **ω**i**β**i, over some objective function O(q):
@@ -113,7 +87,7 @@ Given a minimizing vector **ω**, we can determine the residual, unhedged positi
 
 [![residual](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-50-55-am.png)](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-50-55-am.png)
 
-**Solution**
+## Solution
 
 The optimization problem is similar to the packing problem, where we try to determine how many units of each item, where we have K distinct item types (our beta vectors), optimally fill a bag.
 
@@ -123,6 +97,5 @@ To reduce the combinatorial possibilities to something finite, we can assume tha
 
 We can then solve this with a combinatorial approach (exponential) or approximately with either a greedy algorithm (polynomial) or meta-heuristic optimization approach.
 
-**Addendum**
-
+## Addendum
 I should mention that there are many approaches that can be taken in evaluating portfolio risk.  Gary Basin suggested looking at a PCA decomposition of the portfolio.  PCA is definitely a useful way in determining the primary determinants of variance in the portfolio.   I chose to use a method that allowed me to factor out mean-reverting sub-portfolios.   There are so many approaches to this, can't really comment on what is best.

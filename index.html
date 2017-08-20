@@ -1,19 +1,17 @@
 ---
-layout: default
+layout: home
 ---
 
-<div class="posts">
+<div class="posts clearfix">
   {% for post in site.posts %}
-    <article class="post">
-
+    <article class="post">    
+      <div class="eyebrow">{{ post.date | date: "%d %b %Y" }}</div>
       <h1><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
 
       <div class="entry">
-        {{ post.excerpt }}
+	<p>{{ post.desc }}</p>
+	{{ post.content | truncatewords:80 }}
       </div>
-
-      <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
     </article>
   {% endfor %}
 </div>
-      

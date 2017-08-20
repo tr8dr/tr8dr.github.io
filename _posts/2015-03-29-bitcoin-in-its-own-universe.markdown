@@ -18,7 +18,7 @@ On the other hand, from a trading perspective, generally want to be able to redu
 With that in mind let's look at bitcoin (BTC) vs a variety of ETFs representing FX, IR, world indices, and commodities.
 
 
-### **Correlations**
+## Correlations
 
 
 Below have computed 1day, 5day, and 15day return correlations across BTC + variety of FX, IR, Commodities, and world indices.   To reduce the impact of outliers (return spikes), made use of my Minimum Covariance Determinant covariance implementation.
@@ -44,176 +44,41 @@ Below have computed 1day, 5day, and 15day return correlations across BTC + vari
 [![15min](https://tr8dr.files.wordpress.com/2015/03/15min.png)](https://tr8dr.files.wordpress.com/2015/03/15min.png)
 
 
-### Cointegration
+## Cointegration
 
 
 The VECM model can be used to express the co-movement of related assets across time, formulated as the change in asset prices as:
 
-
-Δx[t] = δ0 + δ1 t + δ2 t2 + ... + Π x[t-1] + Φ1 Δx[t-1] + Φ1 Δx[t-2] + ... + ε
-
+    Δx[t] = δ0 + δ1 t + δ2 t2 + ... + Π x[t-1] + Φ1 Δx[t-1] + Φ1 Δx[t-2] + ... + ε
 
 or alternatively can be formulated as the VAR model:
 
-
-x[t] = δ0 + δ1 t + δ2 t2 + ... + Γ1 x[t-1] + Γ2 x[t-2] + Γ3 x[t-3] + ... + ε
-
+    x[t] = δ0 + δ1 t + δ2 t2 + ... + Γ1 x[t-1] + Γ2 x[t-2] + Γ3 x[t-3] + ... + ε
 
 The two variations of cointegration will look at are:
 
-
-
 	
-  1. constant drift, no time trend, lag 1:
+1. constant drift, no time trend, lag 1:
+   -  x[t] = δ0 + Γ1 x[t-1] + ε
+2. constant drift + time trend, lag 1:
+   - x[t] = δ0 + δ1 t + Γ1 x[t-1]  + ε
 
-	
-    1.  x[t] = δ0 + Γ1 x[t-1] + ε
 
 
+Finding cointegrated assets that do not drift away from each other, even "deterministically", over time is far preferable to time-based drift.   I was not able to find any trivially cointegrated assets in my sample set, however, there were a number of assets with strong "type 2" cointegration.  I was not able to find any trivially cointegrated assets in my sample set,however, there were a number of assets with strong “type 2” cointegration.  Here is one of a number that showed 95% confidence:
 
+```R
+BTCcoint1 = Johansen (Pbtc14[['BTC','IEF']], p=1, k=1)
+BTCcoint1.critical_trace
+```
 
-	
-  2. constant drift + time trend, lag 1:
+ lag | trace | 90% | 95% | 99% 
+-----|-------|-----|-----|-----
+ 0 | 19.298 | 16.162 | 18.399 | 23.149 
+ 1 | 5.768 | 2.706 | 3.842 | 6.635 
 
-	
-    1. x[t] = δ0 + δ1 t + Γ1 x[t-1]  + ε
 
-
-
-
-
-Finding cointegrated assets that do not drift away from each other, even "deterministically", over time is far preferable to time-based drift.   I was not able to find any trivially cointegrated assets in my sample set, however, there were a number of assets with strong "type 2" cointegration.  Here is one of a number that showed 95% confidence:
-
-
-
-
-    
-    <span class="cm-variable">BTCcoint1</span> = <span class="cm-variable">Johansen</span> (<span class="cm-variable">Pbtc14</span>[[<span class="cm-string">'BTC'</span>,<span class="cm-string">'IEF'</span>]], <span class="cm-variable">p</span>=<span class="cm-number">1</span>, <span class="cm-variable">k</span>=<span class="cm-number">1</span>)
-    <span class="cm-variable">BTCcoint1</span>.<span class="cm-variable">critical_trace</span>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<table border="1" class="dataframe" >
-
-<tr >
-
-trace
-90%
-95%
-99%
-</tr>
-
-<tbody >
-<tr >
-0
-
-<td >19.298388
-</td>
-
-<td >16.1619
-</td>
-
-<td >18.3985
-</td>
-
-<td >23.1485
-</td>
-</tr>
-<tr >
-1
-
-<td >5.768913
-</td>
-
-<td >2.7055
-</td>
-
-<td >3.8415
-</td>
-
-<td >6.6349
-</td>
-</tr>
-</tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    
-    BTCcoint1.eigenvectors
-
-
-<table border="1" class="dataframe" >
-
-<tr >
-
-0
-1
-</tr>
-
-<tbody >
-<tr >
-BTC
-
-<td >0.037677
-</td>
-
-<td >-0.019919
-</td>
-</tr>
-<tr >
-IEF
-
-<td >0.999290
-</td>
-
-<td >0.999802
-</td>
-</tr>
-</tbody>
-</table>
-
-
-### 
-
-
-
-
-### Findings
+## Findings
 
 
 The key linkages between Bitcoin and other assets will be driven by investor trading patterns as opposed to fundamentals at this point.   Should Bitcoin become more of a transactional "currency" may start to see more fundamental linkages.
