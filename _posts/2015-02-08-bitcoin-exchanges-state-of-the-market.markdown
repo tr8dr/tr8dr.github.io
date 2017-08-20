@@ -15,7 +15,7 @@ In the previous post outlined intention to put together high quality L2/L3 fee
 
 With the exception of OKCoin, what I've found so far is not good.  Here is a summary of the top-4 exchanges w/ respect to market data APIs (I also included Coinbase with the notion will become a top player):
 
-[![Screen Shot 2015-02-08 at 9.33.28 AM](https://tr8dr.files.wordpress.com/2015/02/screen-shot-2015-02-08-at-9-33-28-am.png)](https://tr8dr.files.wordpress.com/2015/02/screen-shot-2015-02-08-at-9-33-28-am.png)
+![Status](/assets/2015-02-08/screen-shot-2015-02-08-at-9-33-28-am.png)
 
 **BTCChina** is, by far, the largest exchange, however appears to have shoddy technology (at least on the market data side).  They implemented FIX 4.4 last Nov, however is broken in that requests for full OB fail to work as documented (if anyone has had any success with this, please let me know).   BTCChina has an alternative public WebSocket/JSON API which provides just 5 orderbook levels.  However, there appears to be a "secret" API which provides full depth-of-book, as real-time UIs ( such as bitcoinwisdom) show activity beyond 5 levels (if anyone knows how this works, please let me know).  **Addendum**: I have reached out to BTCChina, hopefully they will address the FIX depth-of-book subscription issue and not treat it as a feature.
 
@@ -27,16 +27,12 @@ With the exception of OKCoin, what I've found so far is not good.  Here is a su
 
 **Coinbase** or the yet-to-be launched Gemini, may be the successor to Bitstamp in terms of market position (or perhaps even take on Bitfinex).  With respect to market data, it provides a complete list of orders in the orderbook. **Update**: Coinbase has a streaming API & with level 3 data, my mistake.  <del>However this must be queried by polling their REST/json API.   As you can imagine, this is not a scalable approach - the # of orders will grow over time to the point where the message size will be overwhelming on a periodic frequency.   The right solution is a streaming API with order transaction "deltas" {new order, del order, update order, etc}.    The most basic design, scale, & accessibility mistakes have been repeated, and on a high profile exchange launch (regulated, NYSE-backed, etc).</del>
 
-**Chinese Exchanges**
+## Chinese Exchanges
 
 It is hard to know what is real with respect to volume & dealability on the chinese exchanges.  I do not have any trading experience with either OKCoin or BTCChina, however, the following has been noted from multiple sources ([for example](http://www.reddit.com/r/BitcoinMarkets/comments/2swttr/okcoin_unusable_during_this_drop/)):
 
 
-
-	
-  * OKCoin: exchange not responsive to crossing orders during larger movements (DDOS on price movements)
-
-	
+  * OKCoin: exchange not responsive to crossing orders during larger movements (DDOS on price movements)	
   * OKCoin & BTCChina: massive wash trading and spam orders (obviously house trading bot given not economical otherwise).  This resonates with what I've seen in the market data on OKCoin.
 
 
@@ -44,7 +40,7 @@ At least as a data source, I think these exchanges provide value.   More ideal 
 
 Today there was also bad news, where a HK based exchange (MaiCoin) [disappeared](http://headlines.yahoo.co.jp/hl?a=20150208-00000055-jij-cn) with $3B HKD worth of deposits from customers.   I think there is enough fraud and poor market practices in the bitcoin space, that a certain level of regulation and regulated exchanges will be welcomed.
 
-**Conclusions (technology)**
+## Conclusions (technology)
 
 My overall impression with (most of) the exchange Bitcoin technology is that it has been designed by the typical full-stack web app developer, taking few learnings from traditional markets or applying common sense with respect to scale.   Polling with REST/JSON is one of the dumbest ideas that is pervasive in Bitcoin exchanges (though for some uses is fine).   With this sort of exterior interface / design decision, one has to wonder what other marvels are present behind the scenes.
 

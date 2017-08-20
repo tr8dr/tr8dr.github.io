@@ -13,11 +13,11 @@ categories:
 
 I have implemented 4 bitcoin exchange interfaces now that produce a live L3 stream of orderbook updates + trades of the form:
 
-[![Screen Shot 2015-02-10 at 6.33.12 PM](https://tr8dr.files.wordpress.com/2015/02/screen-shot-2015-02-10-at-6-33-12-pm.png)](https://tr8dr.files.wordpress.com/2015/02/screen-shot-2015-02-10-at-6-33-12-pm.png)
+![Messages](/assets/2015-02-10/screen-shot-2015-02-10-at-6-33-12-pm.png)
 
 Given the above, can reconstitute the orderbook as it moves through time, and can likewise be used to create BBO quotes and bars of different granularities.   The status of the exchange implementations is:
 
-[![Screen Shot 2015-02-10 at 6.43.40 PM](https://tr8dr.files.wordpress.com/2015/02/screen-shot-2015-02-10-at-6-43-40-pm.png)](https://tr8dr.files.wordpress.com/2015/02/screen-shot-2015-02-10-at-6-43-40-pm.png)
+![Status](/assets/2015-02-10//screen-shot-2015-02-10-at-6-43-40-pm.png)
 
 I am looking to run this on a remote machine (preferably linux) and write to an efficient hierarchical file-based tick DB format that I use for equities, FX, and other instruments.    Have not yet decided on a hosting service yet (welcome suggestions).
 

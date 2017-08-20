@@ -43,9 +43,9 @@ There are a variety of choices for mean-reversion model.   Some of the simples
 
 	
 1. Multivariate Ornstein-Uhlenbeck process:
-![Mean Reversion](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-13-17-am.png){: .vcenter-image}	
+![Mean Reversion](/assets/2015-05-02/screen-shot-2015-05-02-at-10-13-17-am.png){: .vcenter-image}	
 2. Vector Error Correction Model (VECM)
-![Screen Shot 2015-05-02 at 10.18.17 AM](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-18-17-am.png){: .vcenter-image}	
+![VECM](/assets/2015-05-02/screen-shot-2015-05-02-at-10-18-17-am.png){: .vcenter-image}	
 3. PCA or ICA based decompositions
    - Can use the vectors produced in decomposition to produce mean-reverting sub-portfolios
 
@@ -67,7 +67,7 @@ Assuming we have:
 
 The goal is to find the smallest net portfolio after subtracting scaled mean-reverting vectors **ω**i**β**i, over some objective function O(q):
 
-![Optimization](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-39-29-am.png)
+![Optimization]((/assets/2015-05-02/screen-shot-2015-05-02-at-10-39-29-am.png)
 
 The most appropriate objective function is one that expresses the residual risk of the portfolio.   For simplicity, defining the risk objective to be to find the residual portfolio with a minimum covariance matrix volume (i.e. determinant).  The intuition is that a covariance matrix with highly aligned (correlated) vectors will have smaller volume.   Likewise, lower variance will reduce the magnitude of the vectors (and therefore volume).
 
@@ -77,15 +77,15 @@ Given a covariance matrix on unit positions **Σ**ΔT, can scale the covariance 
 
 and hence determine the objective function O(q) to be the determinant of the residual covariance:
 
-[![O(q)](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-47-44-am.png)](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-47-44-am.png)
+![O(q)](/assets/2015-05-02/screen-shot-2015-05-02-at-10-47-44-am.png)
 
 putting it all together, we want to minimize:
 
-[![minimization](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-48-24-am.png)](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-48-24-am.png)
+![minimization](/assets/2015-05-02/screen-shot-2015-05-02-at-10-48-24-am.png)
 
 Given a minimizing vector **ω**, we can determine the residual, unhedged position at time step **t** to be:
 
-[![residual](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-50-55-am.png)](https://tr8dr.files.wordpress.com/2015/05/screen-shot-2015-05-02-at-10-50-55-am.png)
+![residual](/assets/2015-05-02/screen-shot-2015-05-02-at-10-50-55-am.png)
 
 ## Solution
 

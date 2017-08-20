@@ -25,23 +25,23 @@ Below have computed 1day, 5day, and 15day return correlations across BTC + vari
 
 **IR & FX**
 
-[![IRFX 15](https://tr8dr.files.wordpress.com/2015/03/irfx-15.png)](https://tr8dr.files.wordpress.com/2015/03/irfx-15.png)
+![IRFX 15](/assets/2015-03-29/irfx-15.png)
 
 **Commodities**
 
-[![Commodities 15](https://tr8dr.files.wordpress.com/2015/03/commodities-15.png)](https://tr8dr.files.wordpress.com/2015/03/commodities-15.png)
+![Commodities 15](/assets/2015-03-29/commodities-15.png)
 
 **World Indices**
 
-[![Indices 15](https://tr8dr.files.wordpress.com/2015/03/indices-15.png)](https://tr8dr.files.wordpress.com/2015/03/indices-15.png)
+![Indices 15](/assets/2015-03-29/indices-15.png)
 
 **All Together** (1day, 5days, 15days)
 
-[![1min](https://tr8dr.files.wordpress.com/2015/03/1min.png)](https://tr8dr.files.wordpress.com/2015/03/1min.png)
+![1min](/assets/2015-03-29/1min.png)
 
-[![5min](https://tr8dr.files.wordpress.com/2015/03/5min.png)](https://tr8dr.files.wordpress.com/2015/03/5min.png)
+![5min](/assets/2015-03-29/5min.png)
 
-[![15min](https://tr8dr.files.wordpress.com/2015/03/15min.png)](https://tr8dr.files.wordpress.com/2015/03/15min.png)
+![15min](/assets/2015-03-29/15min.png)
 
 
 ## Cointegration
