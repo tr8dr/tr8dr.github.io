@@ -3,7 +3,7 @@ author: tr8dr
 comments: true
 date: 2017-08-21 17:00:00+00:00
 layout: post
-title: Information in the Volatility Surface [part 1]
+title: Information In Volatility Structure [part 1]
 wordpress_id: 1126
 categories:
 - data
@@ -12,13 +12,17 @@ categories:
 
 I've developed signals based on the "spot" market, but had not really explored the options market as a source of information.  In particular want to look at discrepancies in option demand / pricing that may relate to future returns or risk.  In scenarios where there is an expected dislocation in price, there may be more demand for calls vs puts or vice-versa.  Buying pressure on puts or calls will tend to impact the option price (and therefore implied vol), much as unbalanced buying / selling impacts price in the "spot" market. 
 
-Towards this end I want to look at measures of the shape of the implied vol (IV) curve for one or more given constant maturities.  The most obvious place to start is by looking at volatility skew as measured by:
+Towards this end I want to look at measures of the shape of the implied vol (IV) curve for one or more given constant maturities.  The most obvious place to start is by looking at volatility.  One such common measure is:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![Skew](/assets/2017-09-21/skew1.png)
 
-for a specific fixed constant maturity over time.  Given the need to look at a constant maturity, we will be walking the volatility surface from day-to-day, so must have both a reasonable estimate of the strike / moneyness cross-section of the surface as well as a reasonable interpolation on the time dimension.
+where would evaluate this measure over time for a specific constant maturity.  I will also be looking at other attributes of the vol surface, but the above is probably a good starting point.  Expect that there will be a good amount of noise day to day, so will need to look at denoised measures of skew.
 
-As with building interest-rate curves, there are certain constraints with respect to arbitrage that should be observed, but the rest is more of an art than a science.  I am not going to be using the vol surface to price exotic options and am more interested in a smooth fit through (often) noisy data than in arbitragable irregularities.  After working with a number of different models, determined that the SABR model was a reasonable choice.   While the SABR model may not be as sophisticated as some of the later stochastic volatility models it is fairly easy to calibrate and reason with.   The SABR model allows for separate, correlated, evolution of both the forward price and volatility over time, expressed as:
+Given the need to look at a constant maturity, we will be "walking" the volatility surface over time, measuring vols in between observable expiries.  Hence will need to build a volatility surface on moneyness vs time, allowing us to project IVs for any given moneyness / strike / delta and expiry.  
+
+As with building interest-rate curves, there are certain constraints with respect to arbitrage that should be observed in building a volatility surface, but the rest is more of an art than a science.  As am not going to be using the vol surface to price exotic options, rather focusing on an approach that produces a smooth fit through noisy data.  After evaluating a number of different models, the SABR model seemed to be the right combination of expressiveness and parsimony.
+
+While the SABR model may not be as sophisticated as some of the more complex stochastic volatility models it is fairly easy to calibrate and reason with.  The SABR model is a stochastic vol extension of the CEV model.  The CEV model was perhaps the first to express a relationship between asset price level and volatility, where volatility has a tendency to inncrease as the asset price decreases.  The beta and skew parameters of the CEV model allow for a variety of distribution configurations.  The SABR model goes further, allowing for separate, correlated, evolution of both the forward price and volatility over time, expressed as:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![SABR Model p1](/assets/2017-09-21/SABR-eqn1.png)
 
@@ -38,21 +42,35 @@ Given only 3 degrees of freedom and a log polynomial structure in F, the SABR mo
 
 ![SABR unweighted](/assets/2017-09-21/SABR-1m-unweighted.png)
 
-Given that most of the trading volume occurs on near-the-money strikes, thought could rectify this by using a weighted least squares solution, where the error function is weighted by the trading volume at a particular strike.  This improve the accuracy of the near-the-money strikes significantly, but the SABR function does not have enough degrees of freedom to overcome the steep curve required for the deep-in-the money strikes (below 200).
+Given that most of the trading volume occurs on near-the-money strikes, thought could rectify this by using a weighted least squares solution, adjusting the error function to weight the square error by the trading volume at a particular strike.  This improve the accuracy of the near-the-money strikes significantly, but the SABR function does not have enough degrees of freedom to overcome the steep curve required for the deep-in-the money strikes (below 200).
 
 ![SABR weighted](/assets/2017-09-21/SABR-1m-weighted.png)
 
-Neither of these approaches is sufficient for my purposes.  The weighted SABR provides good resolution on 20 to 75 delta but with poor resolution on the wings.  Conversely, the unweighted SABR provides the best estimation of the wings, but with poor resolution on the near-the-money strikes.
+Neither of these approaches was sufficient for my purposes.  My variant of weighted SABR often provides good resolution on 15 to 75 delta but with poor resolution on the wings.  Conversely, the unweighted SABR usually provides the best estimation of the wings, unsurprisingly, but with poor resolution on the near-the-money strikes.
 
-## A Heuristic Approach
-I took the approach of computing both of the weighted and unweighted SABR model and blending on transition points on the wings.  I use a linear blend between the weighted and unweighted over a 10 delta range between the near-the-money portion (weighted) and the deep in/out of the money portion (unweighted).  This works rather well, providing needed precision at the near-the-money strikes and preserving overall shape in the deep in/ou of the money wings:
+## A Heuristic Approach (1st pass)
+I took the approach of computing both of the weighted and unweighted SABR model and blending on transition points on the wings.  I use a linear blend between the weighted and unweighted over a range between the near-the-money portion (weighted) and the deep in/out of the money portion (unweighted).  The first implementation below, started a 5 delta transition at 15 delta and 90 delta points, from the weighted to unweighted out to the wings.  This worked rather well, providing needed precision at the near-the-money strikes and preserving overall shape in the deep in/ou of the money wings:  
 
 ![SABR weighted](/assets/2017-09-21/SABR-1m-blended.png)
 
-## Final Thoughts
-The solution is far from perfect.  One would hope to use a model that has just enough degrees of freedom to express the full repertoire of smiles.  I have not fuly investigated all of the stochastic volaility models, though expect some will do quite a bit better here, though at the cost of much greater complexity.   Given that my goal is to smooth over data anomalies (for example the 150 strike in the above example), the explanatory shortcoming is not pose a problem.
+However, one can seen that the weighted calibration does much better beyond the 260 strike.  A better approach would be to use the weighted SABR for the near-the-moneys and extend its influence until it is clear that a blend into the unweighted SABR would be superior.  For example, the "optimal" fit might be one where the weighted curve runs between 175 and 325+ and the unweighted curve is blended in below 175.
 
-I will be evaluating 10 years of data across a wide range of underliers.  Will post more about what I find in coming weeks.
+## A Heuristic Approach (2nd pass)
+Computing the error of each model versus the market vols:
+
+![SABR weighted](/assets/2017-09-21/SABR-error.png)
+
+We can see that the error of the weighted SABR is lower for a region between 160 and the end (325).  The new algorithm makes use of the error function, determined the "best" left and right transition strikes by observing where the error function shows lower error for K consecutive points (I use K = 3).  The requirement for K consecutive points avoids most data noise.   Here is the estimation of the vol function with this new approach:
+
+![SABR weighted](/assets/2017-09-21/SABR-adaptive.png)
+
+The overall fit is much better then any of the prior approaches, with a 99% R^2.   While the continuity and direction of the curve is maintained on the left wing, there is a flip in convexity at the point of transition.  That said, find this curve preferable to the above alternatives.
+
+
+## Final Thoughts
+The solution is far from perfect.  One would hope to use a model with enough degrees of freedom to express the full repertoire of smiles.  I have not fuly investigated all of the stochastic volaility models, though expect some will do quite a bit better here, though at the cost of much greater complexity.   Given that my goal is to smooth over data anomalies (for example the 150 strike in the above example), the explanatory shortcoming does not pose a problem.
+
+I will be evaluating 10 - 20 years of equity option data (with adjustments for dividends).  Will post more about what I find in coming weeks.
 
 
 
