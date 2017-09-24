@@ -42,7 +42,7 @@ Given only 3 degrees of freedom (typically with fixed Beta) and a log polynomial
 
 ![SABR unweighted](/assets/2017-09-21/SABR-1m-unweighted.png)
 
-Speaking to a friend who trades FX derivatives, indicated that practitioners have similar issues, where SABR often implies a steeper vol surface near-the-money than the market trades. This is an artifact of insufficient explanatory capability, where the model cannot fully resolve but the curvature of the steep wings and the flatter section near the money.  As the wings are steep, minimizing their error will tend to dominate a least-squares fit, at the expense of "flatter" regions of the curve that cannot be accomodated by the log polynomial structure. 
+Speaking to a friend who trades FX derivatives, indicated that practitioners have similar issues, where SABR often implies a steeper vol surface near-the-money than the market trades. This is an artifact of insufficient explanatory capability, where the model cannot fully resolve both the curvature of the steep wings and the flatter section near the money.  As the wings are steep, minimizing their error will tend to dominate a least-squares fit, at the expense of "flatter" regions of the curve that cannot be accomodated by the log polynomial structure. 
 
 Given that most of the trading volume occurs on near-the-money strikes, thought could rectify the lack of fit near-the-money by using a weighted least squares solution, adjusting the error function to weight the square error by the trading volume at a particular strike.  This improve the accuracy of the near-the-money strikes significantly, but the SABR function does not have enough degrees of freedom to overcome the steep curve required for the deep-in-the money strikes (below 200).
 
