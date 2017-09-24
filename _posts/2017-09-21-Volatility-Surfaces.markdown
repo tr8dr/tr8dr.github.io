@@ -38,22 +38,24 @@ One can then use multivariate gradient descent to determine a least-squares fit 
 
 ## Problems
 
-Given only 3 degrees of freedom and a log polynomial structure in F, the SABR model cannot express the full variety of curvature seen in empirical smiles.   Below is a case in point, where in order to accommodate the steep smile, the curvature near the ATM causes the function to undershoot the market vols (observe the undershoot between 220 and 240 strikes).   The market vols should be flatter near the money and steeper further away.
+Given only 3 degrees of freedom (typically with fixed Beta) and a log polynomial structure in F, the SABR model cannot express the full variety of curvature seen in empirical smiles.   Below is a case in point, where in order to accommodate the steep smile, the curvature near the ATM causes the function to undershoot the market vols (observe the undershoot between 220 and 240 strikes).  The market vols should be flatter near the money and steeper further away.
 
 ![SABR unweighted](/assets/2017-09-21/SABR-1m-unweighted.png)
 
-Given that most of the trading volume occurs on near-the-money strikes, thought could rectify this by using a weighted least squares solution, adjusting the error function to weight the square error by the trading volume at a particular strike.  This improve the accuracy of the near-the-money strikes significantly, but the SABR function does not have enough degrees of freedom to overcome the steep curve required for the deep-in-the money strikes (below 200).
+Speaking to a friend who trades FX derivatives, indicated that practitioners have similar issues, where SABR often implies a steeper vol surface near-the-money than the market trades. This is an artifact of insufficient explanatory capability, where the model cannot fully resolve but the curvature of the steep wings and the flatter section near the money.  As the wings are steep, minimizing their error will tend to dominate a least-squares fit, at the expense of "flatter" regions of the curve that cannot be accomodated by the log polynomial structure. 
+
+Given that most of the trading volume occurs on near-the-money strikes, thought could rectify the lack of fit near-the-money by using a weighted least squares solution, adjusting the error function to weight the square error by the trading volume at a particular strike.  This improve the accuracy of the near-the-money strikes significantly, but the SABR function does not have enough degrees of freedom to overcome the steep curve required for the deep-in-the money strikes (below 200).
 
 ![SABR weighted](/assets/2017-09-21/SABR-1m-weighted.png)
 
-Neither of these approaches was sufficient for my purposes.  My variant of weighted SABR often provides good resolution on 15 to 75 delta but with poor resolution on the wings.  Conversely, the unweighted SABR usually provides the best estimation of the wings, unsurprisingly, but with poor resolution on the near-the-money strikes.
+Neither of these approaches was sufficient for my purposes.  My variant of weighted SABR often provides good resolution between 15 to 75 delta but with poor resolution in the wings.  Conversely, the unweighted SABR usually provides the best estimation of the wings, but with poor resolution on the near-the-money strikes.
 
 ## A Heuristic Approach (1st pass)
-I took the approach of computing both of the weighted and unweighted SABR model and blending on transition points on the wings.  I use a linear blend between the weighted and unweighted over a range between the near-the-money portion (weighted) and the deep in/out of the money portion (unweighted).  The first implementation below, started a 5 delta transition at 15 delta and 90 delta points, from the weighted to unweighted out to the wings.  This worked rather well, providing needed precision at the near-the-money strikes and preserving overall shape in the deep in/ou of the money wings:  
+I took the approach of computing both of the weighted and unweighted SABR model and blending on transition points on the wings.  I use a linear blend between the weighted and unweighted over a range between the near-the-money portion (weighted) and the deep in/out of the money portion (unweighted).  The first implementation below, started a 5 delta transition at 15 delta and 90 delta points, from the weighted to unweighted out to the wings.  This improved on the degree of fit, providing needed precision at the near-the-money strikes and preserving overall shape in the deep in/ou of the money wings:  
 
 ![SABR weighted](/assets/2017-09-21/SABR-1m-blended.png)
 
-However, one can seen that the weighted calibration does much better beyond the 260 strike.  A better approach would be to use the weighted SABR for the near-the-moneys and extend its influence until it is clear that a blend into the unweighted SABR would be superior.  For example, the "optimal" fit might be one where the weighted curve runs between 175 and 325+ and the unweighted curve is blended in below 175.
+However, one can seen that the original weighted calibration (in the prior section) does much better beyond the 260 strike.  A better approach would be to use the weighted SABR for the near-the-moneys and extend its influence until it is clear that a blend into the unweighted SABR would be superior.  For example, the "optimal" fit might be one where the weighted curve runs between 175 and 325+ and the unweighted curve is blended in below 175.
 
 ## A Heuristic Approach (2nd pass)
 Computing the error of each model versus the market vols:
