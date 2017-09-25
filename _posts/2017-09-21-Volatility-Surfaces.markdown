@@ -74,5 +74,6 @@ The solution is far from perfect.  One would hope to use a model with enough deg
 
 I will be evaluating 10 - 20 years of equity option data (with adjustments for dividends).  Will post more about what I find in coming weeks.
 
-
+## Addendum
+The analysis and graphs above were evaluated with fixed Beta = 0.5 (and therefore only 3 degrees of freedom).  Allowing the solver 4 degrees (with free Beta) reduced the curvature issues noted above, howeever did not eliminate them.  The adaptive algorithm still provides superior fit to either the unweighted or weighted SABR algorithm with 4 degrees of freedom.
 
