@@ -8,7 +8,7 @@ categories:
 - strategies
 ---
 
-I have two pools of capital, one for active trading and another for long-term investment / lower-risk capital preservation.  I go through phases of actively managing investment capital and then phases where become too busy to do so properly.  It would be convenient to hand off the management to one or more funds, invest and forget, but given the market uncertainties and what I know about wall street, trust is hard to come by.   Indeed since the financial crisis, Hedge funds have been gradually falling out of favor, while investments into ETFs has skyrocketed.
+I have two pools of capital, one for active trading and another for long-term investment / lower-risk capital preservation.  I go through phases of actively managing investment capital and then phases where become too busy to do so properly.  It would be convenient to hand off the management to one or more funds, invest and forget, but given the market uncertainties and what I know about wall street, trust is hard to come by.   Indeed since the financial crisis, Hedge funds have been gradually falling out of favor, while investments into ETFs have skyrocketed.
 
 Perhaps as a response to the financial crisis and a certan cynicism regarding traditional financial services, robo-advisors have become popular.  I have looked at Betterment and a variety of other robo-advisors.  While they have slick reporting and have done reasonably well performance wise (albiet in a bull market), they do not offer the sort of flexibility, constraints, or downside protection I need.
 
