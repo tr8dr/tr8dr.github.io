@@ -1,9 +1,9 @@
 ---
 author: tr8dr
 comments: true
-date: 2017-08-24 17:00:00+00:00
+date: 2017-09-24 17:00:00+00:00
 layout: post
-title: Information In Volatility Structure [part 1]
+title: Information In Volatility Structure [1]
 wordpress_id: 1126
 categories:
 - data
