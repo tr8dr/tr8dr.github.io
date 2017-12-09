@@ -52,7 +52,7 @@ All of the above asset classes provide clear underlying factors and reasonable f
 What fundamentals can bitcoin draw on?
 
 1. cost of mining
-   * approximately $19,000 per block according to some sources, putting a break-even bitcoin valuation at $1520 (this is determined based on the current hashing power and estimated cost to run versus the 12.5 BTC / block reward)
+   * approximately $19,000 per block according to some sources, putting a break-even bitcoin valuation at $1520 (this is determined based on the current hashing power and estimated cost to run versus the 12.5 BTC / block reward, ignoring embedded transaction fees in the block, which would reduce the break-even price even further)
 2. limited supply
    * if bitcoin was to become a basis for financial transactions, the limited supply would drive the price of bitcoin upwards
    * However, as have tried to demonstrate above, Bitcoin in its current form, is not suitable as an alternative to fiat.
