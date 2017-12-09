@@ -83,6 +83,6 @@ Based on the above, one might choose to invest in the "Bar" coin in order to obt
 ## Conclusion
 I have sketched an approach towards evaluating crypto fundamentals.  The crypto space needs to integrate with real-world assets and/or provide returns so that can be better assessed from a valuation perspective.  In addition, proof-of-work is the appropriate direction for crypto, in that solves both a transactional problem and provides a basis for fundamental valuation.
 
-I would also like to note that the CME, CBOT, and BitMEX futures add some term structure and implied rate of return to Bitcoin, however less directly and less effectively than proof-of-work would enable.  
+I would also like to note that the CME, CBOT, and BitMEX futures add some term structure and implied rate of return to Bitcoin, however less directly and less effectively than proof-of-stake would enable.  
 
 
