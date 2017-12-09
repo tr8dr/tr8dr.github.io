@@ -9,7 +9,7 @@ categories:
 - strategies
 ---
 
-Bitcoin has entered the mainstream, though not in a way that is particularly useful.  Many, including myself, are calling a bubble in Bitcoin.  As with many bubbles when the "mom and pops" and non-professional investors get into a buying frenzy, historically this has benn associated with the last stages of a bubble.  Momentum from individual buying may persist for some time, potentially in cycles of buying dips, so would not want to get short, without a strong view on sentiment (the only fundamental for bitcoin right now in my opinion).
+Bitcoin has entered the mainstream, though not in a way that is particularly useful.  Many, including myself, are calling a bubble in Bitcoin.  As with many bubbles when the "mom and pops" and non-professional investors get into a buying frenzy, historically this has been associated with the last stages of a bubble.  Momentum from individual buying may persist for some time, potentially in cycles of buying dips, so would not want to get short, without a strong view on sentiment (the only fundamental for bitcoin right now in my opinion).
 
 All that aside, I want to discuss bitcoin and other crypto currencies from a **fundamentals-based valuation perspective** in this article.  Bear with me while I get to my point towards the end.
 
