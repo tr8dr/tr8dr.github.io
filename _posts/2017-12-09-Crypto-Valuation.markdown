@@ -81,7 +81,7 @@ With multiple proof-of-stake coins one can now perform a relative-value comparis
 Based on the above, one might choose to invest in the "Bar" coin in order to obtain a 25% return, but with lower underlying price volatility.  Alternatively, one might opt for the higher risk, but higher return "Foo" coin with a 50% annual return, though with high price volatility and higher depreciation risk.  One could add high yield bonds and other return generating instruments as a point of comparison.
 
 ## Conclusion
-I have sketched an approach towards evaluating crypto fundamentals.  The crypto space needs to integrate with real-world assets and/or provide returns so that can be better assessed from a valuation perspective.  In addition, proof-of-work is the appropriate direction for crypto, in that solves both a transactional problem and provides a basis for fundamental valuation.
+I have sketched an approach towards evaluating crypto fundamentals.  The crypto space needs to integrate with real-world assets and/or provide returns so that can be better assessed from a valuation perspective.  In addition, proof-of-stake is the appropriate direction for crypto, in that solves both a transactional problem and provides a basis for fundamental valuation.
 
 I would also like to note that the emergent CME, CBOE, and BitMEX futures add some term structure and implied rate of return to Bitcoin, however less directly and less effectively than proof-of-stake would enable.  
 
