@@ -35,15 +35,21 @@ From a trading perspective I wanted an algorithm that detected moves with:
 A few years ago developed an algorithm to label momentum and trend patterns in intra-day or daily price data based on 
 the above two criteria. In spite of its simplicity, has performed quite well as compared to a number of more complicated 
 statistical approaches have developed.  I have implemented this in my own proprietary libraries, but thought I
- would contribute more broadly for a change of pace - launched a new python package implementing the approach here:
+ would contribute more broadly for a change of pace - launched a new python and R package implementing the approach here:
 
-https://github.com/tr8dr/tseries-patterns
+- python version:
+  * https://github.com/tr8dr/tseries-patterns
+- R version:
+  * https://github.com/tr8dr/r-tseries-patterns
+
+I have moved to using python primarily for research purposes, so will not be adjusting the R package often.
 
 
 ## Examples
 Below are some examples of the same (intra-day) data series, parameterized for more noise, less noise, higher or lower minimum amplitudes.
 
 ### Labeling (minamp = 20bps, Tinactive = 5mins)
+Note that this was performed on 30sec sampled bars, so Tinactive = 10, corresponds to 10 30sec bars = 5mins
 ```Python
 labeler = AmplitudeBasedLabeler (minamp = 20, Tinactive = 10)
 labels = labeler.label (df)
@@ -52,6 +58,7 @@ labeler.plot()
 ![Graph of labels](/assets/2020-07-11/labeling.20.5.png)
 
 ### Labeling (minamp = 20bps, Tinactive = 15mins)
+Note that this was performed on 30sec sampled bars, so Tinactive = 30, corresponds to 15mins
 ```Python
 labeler = AmplitudeBasedLabeler (minamp = 20, Tinactive = 30)
 labels = labeler.label (df)
