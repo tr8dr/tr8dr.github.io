@@ -3,7 +3,7 @@ author: tr8dr
 comments: true
 date: 2020-07-27 17:00:00+00:00
 layout: post
-title: Why ML → Finance is Hard (part 1)
+title: Why ML → Finance is Hard (1/4)
 subtitle: Why is it hard to apply machine learning to trading?
 categories:
 - machine learning
