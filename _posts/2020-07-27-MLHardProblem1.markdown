@@ -11,7 +11,8 @@ categories:
 I have used __machine learning__ in trading strategies over the past 10 years.  However my use of ML has 
 often played a relatively small role in the overall design and success of the strategies.   I use ML in specific signals or 
 strategy sub-problems where the data / problem setup tends to have a robust statistical solution.  This is as opposed
-to the "Nirvana" scenario where fundamental features and objective are provided to an AI and the AI generates functioning strategies.
+to the "Nirvana" scenario where fundamental features and objective are provided to an AI and the AI generates functioning 
+strategies with little effort on the part of the researcher.
 
 I was part of a very well funded AI startup which attempted to use machine learning on a massive scale to discover
 new and novel medium frequency trading strategies (with mixed success).  More often than not, a strategy determined 
