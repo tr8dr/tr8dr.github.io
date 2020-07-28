@@ -18,7 +18,7 @@ I was part of a very well funded AI startup which attempted to use machine learn
 new and novel medium frequency trading strategies (with mixed success).  More often than not, a strategy determined 
 in training failed to generalize and behave as expected in testing, validation, or live.   We later adjusted the 
 approach to put more emphasis on research and then using machine learning to help us better explore the high dimensional
-space of the feature distribution as the last step.
+space of the feature distribution as the last step, resulting in more successful outcomes.
 
 ## Problems
 Financial timeseries present some of the most difficult problems for machine learning.  Here I will list a
@@ -154,7 +154,7 @@ The above example illustrates a number of problems we will discuss in subsequent
 - __Samples not independent__
   * Each row in our feature set is not independent from neighboring rows.  Our longest feature has a lookback window of
     20 bars.  Hence every feature row will have overlap with 40 other features (20 in the past + 20 in the future).  Many
-    ML algorithms to exploit the information leakage due to non-independence, creating an overfit model in training.
+    ML algorithms will exploit the information leakage due to non-independence, creating an overfit model in training.
   * There are changes we can make to RandomForest, for example, which will help us overcome this problem.
   
 - __Wrong loss objective__
