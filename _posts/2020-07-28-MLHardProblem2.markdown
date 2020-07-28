@@ -202,11 +202,15 @@ def relabeled(X: pd.DataFrame, y: pd.Series, nfold = 10):
         
     return newlabels
 ```
+### Alternatives
+More recently an alternative method ["Confident Learning"](https://l7.curtisnorthcutt.com/confident-learning) has emerged.  
+The approach prunes samples with the lowest model predicted probability of belonging to a given class.  I will do some 
+experiments with this approach to see how it compares to alternatives. 
 
 ## Conclusions
 I am still very unsatisfied with the handling of this problem.  I think the optimal solution will lie in creating
 machine learning algorithms that explicitly allow one to parameterize feature and label noise across the data 
-set.  I have to think further on what this should look if like.   Would love to get pointers from anyone that has
+set.  Will think further on how this should be structured.   Would love to get pointers from anyone that has
 dealt with these problems.
     
 In the next post I will try to tackle lack of feature vector independence.  This is a bigger issue that feature noise, IMO.
