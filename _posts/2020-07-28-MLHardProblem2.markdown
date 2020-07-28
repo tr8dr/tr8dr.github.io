@@ -204,8 +204,8 @@ def relabeled(X: pd.DataFrame, y: pd.Series, nfold = 10):
 ```
 ### Alternatives
 There are a variety of methods described here ["Confident Learning"](https://l7.curtisnorthcutt.com/confident-learning).  I
-will do some more investigation into alternatives and determine whether any of these improve over other methods I use.  Look
-for an update in the near future on this.
+have not found these methods to be as useful as the heuristic above, probably because of the focus on labels versus the
+combined behavior of noisy features and noisy labels.
 
 ## Conclusions
 I am still very unsatisfied with the handling of this problem.  I think the optimal solution will lie in creating
