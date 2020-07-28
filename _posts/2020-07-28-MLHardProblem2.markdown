@@ -3,7 +3,7 @@ author: tr8dr
 comments: true
 date: 2020-07-27 17:00:00+00:00
 layout: post
-title: Why ML is Hard (part 2)
+title: Why ML → Finance is Hard  (part 2)
 subtitle: Label Noise and what we can do about it
 categories:
 - machine learning
