@@ -203,9 +203,9 @@ def relabeled(X: pd.DataFrame, y: pd.Series, nfold = 10):
     return newlabels
 ```
 ### Alternatives
-More recently an alternative method ["Confident Learning"](https://l7.curtisnorthcutt.com/confident-learning) has emerged.  
-The approach prunes samples with the lowest model predicted probability of belonging to a given class.  I will do some 
-experiments with this approach to see how it compares to alternatives. 
+There are a variety of methods described here ["Confident Learning"](https://l7.curtisnorthcutt.com/confident-learning).  I
+will do some more investigation into alternatives and determine whether any of these improve over other methods I use.  Look
+for an update in the near future on this.
 
 ## Conclusions
 I am still very unsatisfied with the handling of this problem.  I think the optimal solution will lie in creating
