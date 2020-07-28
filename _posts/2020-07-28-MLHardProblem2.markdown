@@ -3,8 +3,8 @@ author: tr8dr
 comments: true
 date: 2020-07-27 17:00:00+00:00
 layout: post
-title: Why ML → Finance is Hard  (part 2)
-subtitle: Label Noise and what we can do about it
+title: Why ML → Finance is Hard  (2 / 4)
+subtitle: Label noise and what we can do about it
 categories:
 - machine learning
 ---
@@ -13,7 +13,7 @@ Following on from the [prior post](https://tr8dr.github.io/MLHardProblem1/), wan
 - labeling / mis-labeling
 - patterns unsupported by features
 
-How does this manifest and what might we do to ameliorate the issues it poses.
+How does this manifest and what might we do to ameliorate the issues it poses. 
 
 ## Introduction 
 Financial timeseries appear to have a very low signal to noise ratio, where the variance (the power of the noise frequency) can 
