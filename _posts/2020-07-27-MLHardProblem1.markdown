@@ -9,17 +9,19 @@ categories:
 - machine learning
 ---
 I have used __machine learning__ in trading strategies over the past 10 years or so.  However my use of ML has 
-often played a relatively small role in the overall design and success of the strategies.   I use ML in specific signals or 
-strategy sub-problems where the data / problem setup tends to have a robust statistical solution.  This is as opposed
+often played a relatively small role in the overall design and success of the strategies due to issues particular
+to financial data sets.   I tend to use ML in specific signals or strategy sub-problems where the data / problem setup 
+have attributes that lead to a robust statistical solution.  This is as opposed
 to the "Nirvana" scenario where fundamental features and objective are provided to an AI and the AI generates functioning 
 strategies with little effort on the part of the researcher.
 
-For example, I was part of a very well funded AI startup which attempted to use machine learning on a massive scale to discover
-new and novel medium frequency trading strategies (with mixed success).  More often than not, a strategy determined 
-in training failed to generalize and behave as expected in testing, validation, or live.   We later adjusted the 
-approach to put more emphasis on research and then using machine learning to help us better explore the high dimensional
-space of the feature distribution as the last step, resulting in more successful outcomes.
-
+I was part of a very well funded AI startup that used machine learning on a massive scale to discover
+new and novel medium frequency trading strategies.  More often than not, a strategy determined 
+in training failed to generalize and behave as expected in testing, validation, or live.   We spent considerable time and
+ research understanding and improving on the problems of applying ML to trading over the years.  Subsequent to this have
+ used machine learning in prop trading, market making, and in derivatives modeling at other firms.   
+ 
+I have had a few learnings from these experiences, hopefully some that are useful to others, so will share here:  
 
 ## Problems
 Financial timeseries present some of the most difficult problems for machine learning.  Here I will list a
@@ -54,6 +56,8 @@ few of the challenges with financial data and why it is so difficult to model wi
 5. __Lack of data__
    * Depending on frequency of data or pattern one is pursuing, financial data is often orders of magnitudes less
      plentiful than data sets in other fields.
+   * Markets can be in 1 regime for an extended period of time (witness the equity bull markets), biasing available
+     data towards a single regime.  
 
 
 There are ways to deal with some of these issues.  I first want to highlight the problems, illustrating with examples. 
@@ -157,6 +161,11 @@ The above example illustrates a number of problems we will discuss in subsequent
     20 bars.  Hence every feature row will have overlap with 40 other features (20 in the past + 20 in the future).  Many
     ML algorithms will exploit the information leakage due to non-independence, creating an overfit model in training.
   * There are changes we can make to RandomForest, for example, which will help us overcome this problem.
+  
+- __Biased data set__
+  * The data set used in this example is primarily showing prices rising over time (due to the "unnatural" and continual rise 
+    of the SPY over the last 10+ years).  It would be better to have data which expresses equal weighted upward and downward
+    trends. 
   
 - __Wrong loss objective__
   * We would prefer to optimize for a better balance between TP and FP (precision), as opposed to balancing precision
