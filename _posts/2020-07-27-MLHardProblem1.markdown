@@ -57,7 +57,7 @@ few of the challenges with financial data and why it is so difficult to model wi
 
 There are ways to deal with some of these issues.  I first want to highlight the problems, illustrating with examples. 
 
-## Example 1
+## Toy Example
 Suppose we want to use ML to create a long-only model to predict whether the 5 day return > some minimum return (say 50bps).  
 
 1. Create labels, identifying trading opportunities 
