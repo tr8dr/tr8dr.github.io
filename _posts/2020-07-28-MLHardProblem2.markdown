@@ -8,7 +8,7 @@ subtitle: Label noise and what we can do about it
 categories:
 - machine learning
 ---
-Following on from the [prior post](https://tr8dr.github.io/MLHardProblem1/), want to discuss the repercussions of the low signal / noise ratio and how it effects:
+Following on from the [prior post](https://tr8dr.github.io/MLHardProblem1/), want to discuss the repercussions of the __low signal / noise ratio__ and how it effects:
 
 - labeling / mis-labeling
 - patterns unsupported by features
