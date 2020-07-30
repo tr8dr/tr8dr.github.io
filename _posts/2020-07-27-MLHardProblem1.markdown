@@ -21,7 +21,7 @@ in training failed to generalize and behave as expected in testing, validation, 
  research understanding and improving on the problems of applying ML to trading over the years.  Subsequent to this have
  used machine learning in prop trading, market making, and in derivatives modeling at other firms.   
  
-I have had a few learnings from these experiences, hopefully some that are useful to others, so will share here:  
+As have had a few learnings from these experiences, hopefully some that are useful to others, will share here:  
 
 ## Problems
 Financial timeseries present some of the most difficult problems for machine learning.  Here I will list a
