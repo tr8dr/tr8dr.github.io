@@ -10,7 +10,8 @@ categories:
 ---
 Following on from the [prior post](https://tr8dr.github.io/MLHardProblem2/), want to discuss the problem of __sample independence__.
 Many machine learning models in finance deal with timeseries data, where samples used in training may be __close together in
-time and not be independent of one another__.  There are very few features in finance that do not make use of lookback periods, for example:
+time and not be independent of one another__.  There are very few features in finance that do not make use of lookback periods.  Most 
+features do evaluate prior windows:
 
 - almost all technical indicators (SMA being the most basic example)
 - distribution based signals

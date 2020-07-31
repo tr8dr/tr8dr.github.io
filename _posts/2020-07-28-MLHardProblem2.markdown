@@ -25,8 +25,10 @@ the individual decision making and information state of each market actor, we wo
 of each participant.  This would still not be enough to predict future prices far forward, unless we could also model the future states of
 exogenous information influencing market actors.  While I am aware of and have been involved in limited modeling of actors in the market (for example
 market makers model how groups of traders (clients) or specific clients behave), future event prediction would require a super-human 
-AI that could predict our ecosystem.  Given our lack of capability to know or predict at this level of granularity, for our 
-purposes, we have to assume that there is:
+AI that could predict our ecosystem.  
+
+Given our lack of capability to know or predict the actions of individual actors, we have to take on a stochastic 
+view of the market where the following exist:
 
 - underlying price direction
 - substantial noise added to the price direction by differing views of price discovery (or due to purposeful obfuscation)
@@ -50,8 +52,8 @@ depending on ML algorithm and structure.  Decision tree models, for example, are
 loss function approach.
 
 If our labels (the labels provided in training) have high error, we have biased the model towards that error.  A 50% error
-rate in our labeling would certainly result in a model that is as good as random.   Having a 50% label error rate is not
-necessary to derail a ML model.  Much lower labeling error rates would suffice:
+rate in our labeling would certainly result in a model that is as good as random.   However, much lower error rates
+will tend to be enough to derail a ML model:
 
 - trading opportunities are often the minority label
   * (+1 for enter may be 1/3rd or 1/4 of all labels, in the binary classification case)
@@ -140,7 +142,7 @@ Without solving the noise problem there are ways of avoiding the "labeling probl
 - regression
   * this is quasi-labelled in that maps to (noisy) outcomes, but does not have quantized outcomes as with classification
 - EA (genetic algorithms and genetic programs)
-  * one solves for an objective rather than using classification
+  * one solves for an overall performance objective rather than targeting labels
   
 Of course using any of these means one has reframed a problem in a very different way.  There are many times where
 classification makes the most sense, and the above are not especially applicable.
@@ -156,9 +158,10 @@ There are some heuristic approaches one can take:
 
 - the most obvious, remove noise with pre-smoothing
   * Given that noise exists in both labels and features (where removing feature noise often cannot be removed without lookahead
-bias), pre-smoothing only addresses label noise and not feature noise
+bias or alternatively lag), pre-smoothing only addresses label noise and not feature noise
 - use a classification algorithm that allows weights, weighting the samples based on expected label noise 
   * this limits the ML algorithms we can use and also means our model fails to predict well in higher volatility situations
+  * the lower weight samples may also be of more interest in trading, defeating the purpose
  
 A more interesting heuristic approach (which I have used successfully) attempts to circumvent feature and label noise simultaneously by using a 2 stage approach
 to classification:
@@ -213,7 +216,7 @@ machine learning algorithms that explicitly allow one to parameterize feature an
 set.  Will think further on how this should be structured.   Would love to get pointers from anyone that has
 dealt with these problems.
     
-In the next post I will try to tackle lack of feature vector independence.  This is a bigger issue that feature noise, IMO.
+In the next post I will try to tackle lack of feature vector independence.  
 
 
 

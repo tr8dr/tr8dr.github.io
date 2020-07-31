@@ -53,7 +53,7 @@ few of the challenges with financial data and why it is so difficult to model wi
    * Timescales are not stationary with respect to patterns (patterns can play out over shorter or longer timescales)
    * Regime change presents shift in fundamental trading patterns -> complexity for training models
    
-5. __Lack of data__
+5. __Lack of data or biased data__
    * Depending on frequency of data or pattern one is pursuing, financial data is often orders of magnitudes less
      plentiful than data sets in other fields.
    * Markets can be in 1 regime for an extended period of time (witness the equity bull markets), biasing available
