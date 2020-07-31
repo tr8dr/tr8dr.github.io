@@ -13,13 +13,13 @@ often played a relatively small role in the overall design and success of the st
 to financial data sets.   I tend to use ML in specific signals or strategy sub-problems where the data / problem setup 
 have attributes that lead to a robust statistical solution.  This is as opposed
 to the "Nirvana" scenario where fundamental features and objective are provided to an AI and the AI generates functioning 
-strategies with little effort on the part of the researcher.
+strategies with little effort on the part of the researcher. 
 
 I was part of a very well funded AI startup that used machine learning on a massive scale to discover
 new and novel medium frequency trading strategies.  More often than not, a strategy determined 
 in training failed to generalize and behave as expected in testing, validation, or live.   We spent considerable time and
- research understanding and improving on the problems of applying ML to trading over the years.  Subsequent to this have
- used machine learning in prop trading, market making, and in derivatives modeling at other firms.   
+research understanding and improving on the problems of applying ML to trading over the years.  Subsequent to this have
+used machine learning in prop trading, market making, and in derivatives modeling at other firms.   
  
 As have had a few learnings from these experiences, hopefully some that are useful to others, will share here:  
 
@@ -172,6 +172,11 @@ The above example illustrates a number of problems we will discuss in subsequent
     and recall.
   
 Will discuss these in more depth in subsequent posts, and pose some adjustments that can be done to algorithms, datasets, etc.
+
+## See Next
+- [part 2](https://tr8dr.github.io/MLHardProblem2/)
+- [part 3](https://tr8dr.github.io/MLHardProblem3/)
+
 
 ## Appendix 
 
