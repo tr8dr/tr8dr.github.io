@@ -77,8 +77,15 @@ For our buy / sell indicator we will evaluate it as follows:
 This is realized as:
 
 $$
-BSI(t) = \sum_{t_i < t} (buyvolume_t - sellvolume_t) e^{-\kappa (t - t_i)}
+BSI(t) = \sum_{t_i < t} (buyvolume_{t_i} - sellvolume_{t_i}) e^{-\kappa (t - t_i)}
 $$
+
+Or as a recurrence relation:
+
+$$
+BSI(t) = BSI(t-1) e^{-\kappa \Delta t} + (buyvolume_{t_i} - sellvolume_{t_i}) 
+$$
+
 
 ## Discussion & Examples
 The buy sell imbalance usually develops __ahead of a visible price move__, as trading drives price moves.  If you have access to 
