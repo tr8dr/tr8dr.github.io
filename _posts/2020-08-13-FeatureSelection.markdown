@@ -146,8 +146,8 @@ diagram from his blog:
 LDA should do better for feature extraction than PCA in most situations due to the explicit selection of components that
 maximize class separation.  There are, however, some issues with respect to LDA:
 
-- less effective for non-linear relationships
-  * non-linear relationship between features and classes will not be expressed
+- __less effective for non-linear relationships__
+  * if the classes / features are not linearly separable, requiring non-linear separation, this approach will fail
 - use of __centroids to define barycenter__ for each feature distribution
   * this is appropriate for relatively symmetric distributions, but would tend to be unrepresentative for many other
     distributions present in financial data.
@@ -171,6 +171,12 @@ optimal representation in $$ \mathbb{R}^k $$ sufficient to reproduce $$ \mathbb{
 While deep-learning ANNs allow for non-linearities, unlike PCA, auto-encoders cannot classify the relative importance
 of features based on feature -> class fidelity.
 
+## Intermediate Conclusions
+Each approach has drawbacks and may or may not be suitable for a given data set:
+
+- PCA has significant drawbacks related to decomposing based on variance, ignoring class labels
+- LDA improves on PCA, but requires linear separability
+- Auto-Encoders allow for non-linear transformation in feature reduction, but not aware of class labels
 
 ## Next
 In the next post will describe a distribution based approach and compare to a ML model importance based approach.
