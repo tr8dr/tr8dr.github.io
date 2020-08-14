@@ -160,8 +160,9 @@ Auto-Encoders present a very interesting approach to dimensional reduction.  The
 approach involves creating a __deep neural network__ with:
  
 - __d__ inputs (for feature dimension $$ \mathbb{R}^d $$)
-- an internal layer with just __k__ nodes (to obtain k-dimensional features)
-- an output layer with __d__ nodes.   
+- hidden layers to effect the encoding and decoding
+- an internal layer with __k__ nodes between the encoder and decoder (to obtain k-dimensional features)
+- an output layer with __d__ nodes (to reconstitute the d-dimensional input features)   
 
 The idea is that we want to train the encoder to generate features in $$ \mathbb{R}^k $$ space, with fidelity to
 reproduce the d-dimensional features from the k-dimensional reduced feature set.
