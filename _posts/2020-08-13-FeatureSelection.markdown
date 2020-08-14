@@ -38,7 +38,7 @@ where:
 - __loss function__ $$ loss (f(\vec{x}_i), y_i) $$ is the cost of mislabeling where $$ f(\vec{x}_i) \ne y_i $$
   * there are many different realizations of this function depending on whether is used for regression or classification and particular ML model.  For 
     example, for least-squares regression would simply be $$ loss(\hat{y}, y) = (\hat{y} - y)^2 $$
-- __penalty function__ $$ penalty (weights)  $$ is a model complexity penalty, where larger dimensionality is penalized more than lower dimensionality
+- __penalty function__ $$ penalty (weights)  $$ is a model complexity penalty
   * L2 regularization imposes a $$ \lambda \vec{w}^T \vec{w} $$ penalty
   * L1 regularization imposes a $$ \lambda \sum_{i} \vert w_i \vert $$, though refactored to avoid the discontinuity of the absolute value function. 
 
