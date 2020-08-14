@@ -171,7 +171,7 @@ reproduce the d-dimensional features from the k-dimensional reduced feature set.
 The network is trained on the same input and outputs, such that the hidden internal k-dimensional layer learns the
 optimal representation in $$ \mathbb{R}^k $$ sufficient to reproduce $$ \mathbb{R}^d $$ with minimal error. 
 
-While deep-learning ANNs allow for non-linearities, unlike PCA, auto-encoders cannot classify the relative importance
+While deep-learning ANNs allow for non-linearities (unlike PCA), auto-encoders also suffer from inability to classify the relative importance
 of features based on feature -> class fidelity.
 
 ## Intermediate Conclusions
