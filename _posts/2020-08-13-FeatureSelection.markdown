@@ -156,7 +156,7 @@ maximize class separation.  There are, however, some issues that may make it uns
     distributions present in financial data.
   
 ### Auto-Encoders
-Auto-Encoders present is a very interesting approach for dimensional reduction, outlier detection, and other uses.  The
+Auto-Encoders present a very interesting approach to dimensional reduction.  The
 approach involves creating a __deep neural network__ with:
  
 - __d__ inputs (for feature dimension $$ \mathbb{R}^d $$)
