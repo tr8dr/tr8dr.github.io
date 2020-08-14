@@ -136,8 +136,8 @@ dimensional reduction for my data sets.
 
 ### LDA
 LDA solves some of the problems of PCA, where instead of determining orthogonal components on maximum variance axes,
-determines components than maximize linear class-separation.  Sebastian Raschka has an excellent 
-[deep dive into LDA](https://sebastianraschka.com/Articles/2014_python_lda.html), contrasting to PCA .  Borrowing a 
+determines components than maximize linear class-separation.  Sebastian Raschka has written an excellent article on
+[Linear Discriminant Analysis](https://sebastianraschka.com/Articles/2014_python_lda.html), contrasting to PCA .  Borrowing a 
 diagram from his blog:
 
 <p>
@@ -146,8 +146,8 @@ diagram from his blog:
 </p>
 
 #### Deficiencies of LDA
-LDA should do better for feature extraction than PCA in most situations due to the explicit selection of components that
-maximize class separation.  There are, however, some issues with respect to LDA:
+LDA will often perform better than PCA due to the explicit selection of components that
+maximize class separation.  There are, however, some issues that may make it unsuitable for a given data set:
 
 - __less effective for non-linear relationships__
   * if the classes / features are not linearly separable, requiring non-linear separation, this approach will fail
