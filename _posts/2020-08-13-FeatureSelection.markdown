@@ -177,9 +177,25 @@ of features based on feature -> class fidelity.
 ## Intermediate Conclusions
 Each approach has drawbacks and may or may not be suitable for a given data set:
 
-- PCA has significant drawbacks related to decomposing based on variance, ignoring class labels
-- LDA improves on PCA, but requires linear separability
-- Auto-Encoders allow for non-linear transformation in feature reduction, but not aware of class labels
+- PCA has significant drawbacks (probably the least effective of the 3):
+  * negative: cannot select based on discrimination between classes (or outcome)
+  * negative: linear transformation
+- LDA improves on PCA:
+  * positive: determines components that maximize discrimination between classes
+  * negative: requires linear separability
+  * negative: use of centroids will fail with non-symmetric distributions
+- Auto-Encoders:
+  * positive: can embody non-linearities in the transformation of features
+  * positive: allow for higher compression of dimension than PCA for certain data sets
+  * negative: cannot select based on discrimination between classes (or outcome)
+
+Ideally we want a dimensional reduction technique that:
+
+- is aware of the relationship between features and outcome
+  * choosing features that maximize resolution of p(f(x) = y \| x)
+- can deal with a wide variety of feature distributions
+  * for example distributions with fat tails, exponential, etc
+- non-linear
 
 ## Next
 In the next post will describe a distribution based approach and compare to a ML model importance based approach.
