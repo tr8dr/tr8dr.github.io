@@ -43,9 +43,11 @@ Lets compare the distributions $$ p(x_0) $$ and $$ p(x_0\, \vert\, f(x) = 1) $$:
 
 <img src="/assets/2020-08-14/px0.png" width="550" height="400"/>
 
-We can clearly see that feature 0 is strongly aligned with the transfer function f(x) given the significant difference
-between the prior and conditional distributions.  However feature 1 has almost no impact on the outcome of f(x), as
-seen by a lack of difference between the prior and conditional distributions for $$ x_1 $$:
+We can clearly see (above) that feature 0 has a strong relationship with the function f(x) given the significant difference
+between the prior and conditional distributions.  
+
+However, in the next figure (below), feature 1 shows no impact on the outcome of f(x); this
+is evident by the lack of difference between the prior and conditional distributions for feature $$ x_1 $$:
 
 ```python
 sns.distplot(x1),
