@@ -1,0 +1,192 @@
+---
+author: tr8dr
+comments: true
+date: 2020-08-13 11:00:00+00:00
+layout: post
+title: Feature Selection (1 / 3)
+subtitle: Introduction
+categories:
+- indicators
+---
+I am often confronted with the problem of trying to __reduce a high dimensional feature set__ to a, smaller, more effective one.
+Reducing dimension is important for machine learning models as:
+ 
+- the __volume of the "search space" grows exponentially__
+  * at a minimum rate of $$ 2^{d} $$ for binary categorical variables to a much higher exponential for continuous or n-ary categoricals.
+- the __joint-distribution__ of high dimensional empirical spaces tends to be __sparse and ill-defined__
+  * empirical distributions require data sample size in proportion to the volume of the space (exponential)
+  * cannot reasonably determine the joint distribution of sparsely supported spaces
+- __combinatorial explosion__
+  * number of variable combinations can grow to an astronomical # (with n! growth)
+  * possible sub-space conditional distributions
+
+
+## Objective
+Assuming we are pursuing a classification problem, the objective of feature selection should be to determine a feature
+subspace that __maximizes discrimination between classes__ and __minimizes model complexity__.   Alternatively, we can express this
+as a minimization of:
+
+$$
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+\newcommand\given[1][]{\:#1\lvert\:}
+\argmin_{ \vec{w} \in \{ set\, of\, all\, \left[ 0,1 \right]^d permutations \} } \sum_{i \in n} loss( f(\vec{w} \cdot \vec{x}_i), y_i) + penalty(\vec{w})
+$$
+
+where:
+
+- __loss function__ $$ loss (f(\vec{x}_i), y_i) $$ is the cost of mislabeling where $$ f(\vec{x}_i) \ne y_i $$
+  * there are many different realizations of this function depending on whether is used for regression or classification and particular ML model.  For 
+    example, for least-squares regression would simply be $$ loss(\hat{y}, y) = (\hat{y} - y)^2 $$
+- __penalty function__ $$ penalty (weights)  $$ is a model complexity penalty, where larger dimensionality is penalized more than lower dimensionality
+  * L2 regularization imposes a $$ \lambda \vec{w}^T \vec{w} $$ penalty
+  * L1 regularization imposes a $$ \lambda \sum_{i} \vert w_i \vert $$, though refactored to avoid the discontinuity of the absolute value function. 
+
+Conceptually we could evaluate all (non-0 magnitude) permutations of the d-dimensional weight vector $$ \vec{w} $$ where weights are either 0 or 1,
+corresponding to enabling or disabling a feature.  Some subset of features, expressed as 0 or 1 weights in $$ \vec(w) $$ will minimize 
+the loss + complexity penalty.
+ 
+
+## Approaches
+Here are some approaches:
+
+- __subspace projections__ from dimensionality d down to k, where k < d
+  * PCA, LDA, ICA, ...
+  * auto-encoders: model (typically deep-learning) learns to reproduce d-dimensional features from lower dimensional k-dimensional 
+    synthetic features, in a feedback loop.  The k-dimensional features are the dimensionally reduced output. 
+- __ML model based__, using ML model regularization to determine feature relevance
+  * random forest
+  * regression / classification with L1 regularization
+- __greedy__
+  * iterative approaches where subsets of features are selected and evaluated against a particular model
+  * this is very data and model specific and likely to overfit.
+  * computationally infeasible to do exhaustively for high dimensional data sets
+- __distributional__
+  * evaluate discrimination of prior $$ p(feature) $$ versus $$ p(feature \,\vert\, label) $$ 
+  
+I have found that the __distributional__ and __model based__ approaches to be the most effective for my work.  That said,
+will start by discussing __subspace projections__.
+  
+## Subspace Projections
+Subspace projection finds a transformation on high d-dimensional features, reducing to k-dimensional features + error:
+
+$$
+\begin{align*}
+\vec{f}_k =& T(\vec{f}_d) + \epsilon_k
+\end{align*}
+$$
+
+where $$ T() $$ is the (lossy) transform from $$ \mathbb{R}^d $$ to $$ \mathbb{R}^k $$.
+
+### PCA
+PCA is a well known dimensional reduction technique.  PCA determines othogonal components in $$ \mathbb{R}^d $$ where 
+component axes are found that maximize variance.  Using the SVD decomposition of the covariance matrix, we determine
+d eigenvector / eigenvalue pairs, known as "principal components".  Each eigenvector defines an orthogonal axis in $$ \mathbb{R}^d $$
+that has maximized the variance of the features along the remaining axes.
+
+![example of PCA (from wikipedia)](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/GaussianScatterPCA.svg/440px-GaussianScatterPCA.svg.png)
+  
+Dimensional reduction is achieved by selecting the k < d eigenvectors with the highest magnitude.  The original data
+can be reconstructed (with some error) from the k eignvectors with a linear combination.
+
+However, __PCA is rarely going to be an effective approach__ for dimensional reduction or feature selection in machine learning data sets.  There are two 
+fundamental problems with PCA used in this context:
+
+1. PCA has __no awareness of label or outcome__
+   * should be performed, in some way, on conditonal distribution $$ p(x \vert y) $$
+2. The variance of features may have __little to do with__ $$ p(y \vert x) $$
+   * the transfer function y = f(x) may be non-linear or scaled in such a way that the covariance of x
+     is not representative.
+     
+#### Problem with PCA
+Consider the above image of the principal component decomposition of a 2 dimensional point (sample) cloud.  PCA, in reducing from 2
+features to 1 would choose the largest magnitude eigenvector aligned at ~30 degrees rather than the smaller magnitude vector aligned at 120 degrees.  
+
+What we are most concerned about is the sensitivity of the model to features, i.e. the derivatives 
+$$ \frac{\partial f}{ \partial x}, \frac{\partial^2 f}{ \partial x^2}, ... $$, and not the variance of the
+features.
+
+By way of example, supposing the function we are trying to learn given the above features x was:
+
+$$
+f(\vec{x}) = 
+\begin{bmatrix}
+100 & 1 \\
+1 & 1
+\end{bmatrix}
+\begin{bmatrix}
+cos (-\pi/6) & -sin (-\pi/6) \\
+sin (-\pi/6) & cos (-\pi/6)
+\end{bmatrix}
+\vec{x}
++ \vec{\epsilon}
+$$
+
+PCA's selection of the higher variance (higher magnitude) component failed in this case.  The function has 100x the
+sensitivity to the second 120 degree component in the data set, and almost no sensitivity to the 1st principal component.  This 
+demonstrates the problem with PCA, where the features with the largest variance may not correspond to core features 
+the target is most dependent on.
+
+While the above example was contrived, in practice I find that PCA often emphasizes the wrong features when performing
+dimensional reduction for my data sets.
+
+### LDA
+LDA solves some of the problems of PCA, where instead of determining orthogonal components on maximum variance axes,
+determines components than maximize linear class-separation.  Sebastian Raschka has an excellent 
+[deep dive into LDA](https://sebastianraschka.com/Articles/2014_python_lda.html), contrasting to PCA .  Borrowing a 
+diagram from his blog:
+
+<p>
+<img src="https://sebastianraschka.com/images/blog/2014/linear-discriminant-analysis/lda_1.png" width="600" height="300" />
+(source: Sebastian Raschka's blog)
+</p>
+
+#### Deficiencies of LDA
+LDA should do better for feature extraction than PCA in most situations due to the explicit selection of components that
+maximize class separation.  There are, however, some issues with respect to LDA:
+
+- less effective for non-linear relationships
+  * non-linear relationship between features and classes will not be expressed
+- use of __centroids to define barycenter__ for each feature distribution
+  * this is appropriate for relatively symmetric distributions, but would tend to be unrepresentative for many other
+    distributions present in financial data.
+  
+### Auto-Encoders
+Auto-Encoders present is a very interesting approach for dimensional reduction, outlier detection, and other uses.  The
+approach involves creating a __deep neural network__ with:
+ 
+- __d__ inputs (for feature dimension $$ \mathbb{R}^d $$)
+- an internal layer with just __k__ nodes (to obtain k-dimensional features)
+- an output layer with __d__ nodes.   
+
+The idea is that we want to train the encoder to generate features in $$ \mathbb{R}^k $$ space, with fidelity to
+reproduce the d-dimensional features from the k-dimensional reduced feature set.
+
+<img src="/assets/2020-08-13/autoencoder.png" width="350" height="300" />
+
+The network is trained on the same input and outputs, such that the hidden internal k-dimensional layer learns the
+optimal representation in $$ \mathbb{R}^k $$ sufficient to reproduce $$ \mathbb{R}^d $$ with minimal error. 
+
+While deep-learning ANNs allow for non-linearities, unlike PCA, auto-encoders cannot classify the relative importance
+of features based on feature -> class fidelity.
+
+
+## Next
+In the next post will describe a distribution based approach and compare to a ML model importance based approach.
+
+
+
+
+
+
+
+
+     
+
+
+
+
+
+
+
+
