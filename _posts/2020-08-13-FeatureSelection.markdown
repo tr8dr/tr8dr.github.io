@@ -89,30 +89,31 @@ that has maximized the variance of the features along the remaining axes.
 Dimensional reduction is achieved by selecting the k < d eigenvectors with the highest magnitude.  The original data
 can be reconstructed (with some error) from the k eignvectors with a linear combination.
 
+#### Problems with PCA
 However, __PCA is rarely going to be an effective approach__ for dimensional reduction or feature selection in machine learning data sets.  There are two 
 fundamental problems with PCA used in this context:
 
-1. PCA has __no awareness of label or outcome__
-   * should be performed, in some way, on conditonal distribution $$ p(x \vert y) $$
-2. The variance of features may have __little to do with__ $$ p(y \vert x) $$
+1. PCA has __no conditioning on outcome__
+   * should be performed, in some way, on conditonal distribution $$ p(x \vert f(x)) $$
+2. The variance of features may have __little to do with__ $$ p(f(x) \vert x) $$
    * the transfer function y = f(x) may be non-linear or scaled in such a way that the covariance of x
      is not representative.
      
-#### Problem with PCA
-Consider the above image of the principal component decomposition of a 2 dimensional point (sample) cloud.  PCA, in reducing from 2
-features to 1 would choose the largest magnitude eigenvector aligned at ~30 degrees rather than the smaller magnitude vector aligned at 120 degrees.  
+Consider the above figure showing the principal component decomposition of a 2 dimensional feature set.  If we use PCA
+to reduce from 2 dimensions to 1 dimension, the eigenvector with the largest eigenvalue (the magnitude) would be chosen.  In 
+this case the vector aligned at ~30 degrees would be the selected vector.  
 
-What we are most concerned about is the sensitivity of the model to features, i.e. the derivatives 
-$$ \frac{\partial f}{ \partial x}, \frac{\partial^2 f}{ \partial x^2}, ... $$, and not the variance of the
-features.
+However, this vector may not be aligned in importance with the underlying function f(x).  In dimensional reduction we
+want to select components that align with the largest transfer function (f(x)) sensitivities.  These will correspond to the
+partial derivatives of f(x) with respect to each feature (and not necessarily the variance of features).
 
-By way of example, supposing the function we are trying to learn given the above features x was:
+By way of example, supposing we want to use ML to learn the following function:
 
 $$
 f(\vec{x}) = 
 \begin{bmatrix}
-100 & 1 \\
-1 & 1
+100 & 0 \\
+0 & 1
 \end{bmatrix}
 \begin{bmatrix}
 cos (-\pi/6) & -sin (-\pi/6) \\
@@ -122,10 +123,10 @@ sin (-\pi/6) & cos (-\pi/6)
 + \vec{\epsilon}
 $$
 
-PCA's selection of the higher variance (higher magnitude) component failed in this case.  The function has 100x the
-sensitivity to the second 120 degree component in the data set, and almost no sensitivity to the 1st principal component.  This 
-demonstrates the problem with PCA, where the features with the largest variance may not correspond to core features 
-the target is most dependent on.
+The above function has 100x the sensitivity to the 2nd PCA component in the features and very little sensitivity to the 1st
+PCA component.  In selecting the 1st component (the component with highest variance), PCA has selected a noisy variable 
+with little impact on f(x).  Training a model for f(x) on the PCA reduced feature set would produce a very low accuracy,
+given that most of the information was in the 2nd component.
 
 While the above example was contrived, in practice I find that PCA often emphasizes the wrong features when performing
 dimensional reduction for my data sets.
