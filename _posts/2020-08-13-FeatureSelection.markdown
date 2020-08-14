@@ -79,18 +79,21 @@ $$
 where $$ T() $$ is the (lossy) transform from $$ \mathbb{R}^d $$ to $$ \mathbb{R}^k $$.
 
 ### PCA
-PCA is a well known dimensional reduction technique.  PCA determines othogonal components in $$ \mathbb{R}^d $$ where 
-component axes are found that maximize variance.  Using the SVD decomposition of the covariance matrix, we determine
-d eigenvector / eigenvalue pairs, known as "principal components".  Each eigenvector defines an orthogonal axis in $$ \mathbb{R}^d $$
-that has maximized the variance of the features along the remaining axes.
+PCA is technique that finds orthogonal axes in a data set; the dimensionality of a data set can be reduced by selecting a
+subset of these axes, recombining to produce a feature set with reduced dimension.  
+
+PCA determines othogonal components in $$ \mathbb{R}^d $$ using the SVD 
+decomposition of the covariance matrix, and determines d eigenvector / eigenvalue pairs, known as "principal components".  Each 
+eigenvector defines an orthogonal axis in $$ \mathbb{R}^d $$ that aligns along maximal variance.  The variance oriented alignment 
+is easy to see in the decomposition of a 2-dimensional data set depicted below (source: Wikipedia):
 
 ![example of PCA (from wikipedia)](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/GaussianScatterPCA.svg/440px-GaussianScatterPCA.svg.png)
   
-Dimensional reduction is achieved by selecting the k < d eigenvectors with the highest magnitude.  The original data
+Dimensional reduction is achieved by selecting the k < d eigenvectors with the highest magnitude (variance).  The original data
 can be reconstructed (with some error) from the k eignvectors with a linear combination.
 
 #### Problems with PCA
-However, __PCA is rarely going to be an effective approach__ for dimensional reduction or feature selection in machine learning data sets.  There are two 
+However, __PCA is rarely going to be an effective approach__ for dimensional reduction in machine learning data sets.  There are two 
 fundamental problems with PCA used in this context:
 
 1. PCA has __no conditioning on outcome__
