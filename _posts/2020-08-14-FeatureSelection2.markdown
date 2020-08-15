@@ -156,7 +156,7 @@ For now have use a heuristic algorithm to deal with the correlation overlap, and
 
 ## Conclusions
 In this post I did not compare the "goodness-of-rank: of this method versus other methods (this is quite hard to do objectively).  However, 
-can in practice have found this method:
+in practice have found this method:
 
 - at least as good or better than Random-Forest Gini based feature selection
 - has a sound information-geometric basis
