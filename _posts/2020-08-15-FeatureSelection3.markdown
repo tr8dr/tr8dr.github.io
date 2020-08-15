@@ -51,28 +51,8 @@ class 0 and class 1 respectively (for a binary classifier).
 Let's create a 2-dimensional feature set for a binary classification problem.  I will use this to discuss tree construction,
 information geometry, and feature selection:
 
+(see appendix for full code)
 ```python
-import numpy as np
-import seaborn as sns
-from scipy.linalg import cholesky
-from scipy.stats import norm
-
-def rand2d (n: int, mu = [0, 0], sigmas = [1, 1], corr = 0.0):
-    # produce covariance
-    v = np.diag(sigmas)
-    cor = np.array([[1.0, corr], [corr, 1.0]])
-    cov = np.matmul (np.matmul (v, cor), v)
-   
-    # get iid random samples
-    iid = norm.rvs (size = (2, n))
-    
-    # apply covariance
-    chol = cholesky (cov, lower = True) 
-    vectors = np.dot(chol, iid)
-    
-    # add mu's
-    return pd.DataFrame({'x1': vectors[0] + mu[0], 'x2': vectors[1] + mu[1]})
-
 label0 = rand2d (n = 1000, mu = [0, 100], sigmas=[2.0, 1.0], corr = -0.8)
 label0["label"] = 0
 
@@ -201,6 +181,49 @@ Some final thoughts on feature selection:
 It is unlikely to be my last post on feature selection, as am always looking to refine my approach.  I will move on to 
 another topic for the next post however.
 
+## Appendix: Code
+```python
+import numpy as np
+import seaborn as sns
+from scipy.linalg import cholesky
+from scipy.stats import norm
+
+def rand2d (n: int, mu = [0, 0], sigmas = [1, 1], corr = 0.0):
+    # produce covariance
+    v = np.diag(sigmas)
+    cor = np.array([[1.0, corr], [corr, 1.0]])
+    cov = np.matmul (np.matmul (v, cor), v)
+   
+    # get iid random samples
+    iid = norm.rvs (size = (2, n))
+    
+    # apply covariance
+    chol = cholesky (cov, lower = True) 
+    vectors = np.dot(chol, iid)
+    
+    # add mu's
+    return pd.DataFrame({'x1': vectors[0] + mu[0], 'x2': vectors[1] + mu[1]})
+
+label0 = rand2d (n = 1000, mu = [0, 100], sigmas=[2.0, 1.0], corr = -0.8)
+label0["label"] = 0
+
+label1 = pd.concat([
+    rand2d (n = 1000, mu = [0, 98], sigmas=[2.0, 1.0], corr = -0.6),
+    rand2d (n = 300, mu = [4, 103], sigmas=[0.5, 0.5], corr = -0.5)
+])
+label1["label"] = 1
+
+all = pd.concat([label0, label0])
+
+sns.scatterplot (label0.x1, label0.x2),
+sns.scatterplot (label1.x1, label1.x2).set_title("2 class, 2 feature classification")
+
+sns.distplot(all.x2),
+sns.distplot(all.x2[all.label == 0]).set_title(r"$p(x_2)$ vs $p(x_2 \, \vert \, f(x) = 0)$")
+
+sns.distplot(all.x2),
+sns.distplot(all.x2[all.x2 >= 99]).set_title(r"$p(x_2)$ vs $p(x_2 \, \vert \, x2 \geq 99)$")
+```
 
 
 
