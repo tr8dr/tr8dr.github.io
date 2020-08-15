@@ -61,7 +61,7 @@ Here are some approaches:
   * iterative approaches where subsets of features are selected and evaluated against a particular model
   * this is very data and model specific and likely to overfit.
   * computationally infeasible to do exhaustively for high dimensional data sets
-- __distributional__
+- __information geometric__ approaches
   * evaluate discrimination of prior $$ p(feature) $$ versus $$ p(feature \,\vert\, label) $$ 
   
 I have found that the __distributional__ and __model based__ approaches to be the most effective for my work.  That said,
