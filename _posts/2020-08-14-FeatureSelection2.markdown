@@ -70,13 +70,15 @@ Here are some distance measures we could use in determining the difference betwe
 distributions: 
  
 - __Jensen-Shannon Divergence__ 
-  * however focuses on differences between mean and standard deviation.  Misses overall shape, outliers, etc.
-- __Kullback-Leiber Divergence__
-  * similar drawbacks to Jensen-Shannon
+  * Formulated along the lines of information entropy, however, where the log probability term is the ratio of
+    probabilities between distributions.  This is a symmetric adjustment to __Kullback-Leibler Divergence__.
+  * The computational complexity for univariate distributions is O(n) and O(n^k) for multivariate.
 - __Wasserstein__ (or EMD)
-  * this is the best distance measure for our purposes as measures the distance across the whole distribution as
-    opposed to just the mean and variance.
-  * the downside is that it has high O(n^3) complexity
+  * A more flexible divergence metric allowing comparison of distributions even when their supports do not intersect
+  * For the case of univariate empirical distributions has complexity O(n log n) in the number of samples.  For multivariate
+    the complexity is O(n^3), though there are some approximate methods linear in time.
+  
+At some point will do an analysis to compare how the two perform.  For the moment forcusing on Wasserstein distance. 
 
 The 1st order Wasserstein distance is known also as the "Earth Mover Distance" (EMD).  The approach determines the
 "amount of work" required to move mass
