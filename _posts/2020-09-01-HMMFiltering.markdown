@@ -139,8 +139,7 @@ from talib import ADX
 
 
 # get price bars
-yahoo = YahooData()
-aapl = yahoo.getOHLC("AAPL", Tstart='2019-1-1')
+aapl = YahooData.getOHLC("AAPL", Tstart='2019-1-1')
 
 # compute our raw signal (not a very good one, FYI)
 rawsignal = ADX(aapl.high, aapl.low, aapl.close, timeperiod=20)
