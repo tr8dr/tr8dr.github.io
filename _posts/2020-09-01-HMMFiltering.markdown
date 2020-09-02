@@ -54,9 +54,9 @@ P_{long \rightarrow short} & P_{long \rightarrow neutral} & P_{long \rightarrow 
 \end{bmatrix}
 $$
 
-Note that the probabilities must have the relationship that the sum across each row must = 1, i.e. for transition
+Note that the probabilities must sum to 1 across each row, i.e. for transition
 matrix M: $$ \sum_j M_{i,j} = 1 $$.  If one wants to __define the denoising model in terms of "stickiness" to same state__, then can determine the probabilities
-for the transition matrix as:
+for the 3-state transition matrix as:
 
 $$
 \begin{bmatrix}
@@ -65,6 +65,16 @@ P_{short \rightarrow short} & \frac{1}{2} (1 - P_{short \rightarrow short}) & \f
 \frac{1}{2} (1 - P_{long \rightarrow long}) & \frac{1}{2} (1 - P_{long \rightarrow long}) & P_{long \rightarrow long} 
 \end{bmatrix}
 $$
+
+and for a 2-state matrix as:
+
+$$
+\begin{bmatrix}
+P_{s_0 \rightarrow s_0} & (1 - P_{s_0 \rightarrow s_0}) \\ 
+(1 - P_{s_1 \rightarrow s_1}) & P_{s_1 \rightarrow s_1}
+\end{bmatrix}
+$$
+
 
 ### Observation Distributions
 Next we need to consider how the __noisy signal is mapped to these states__.  The approach that HMM takes is to
@@ -163,7 +173,9 @@ The above `HMM2State` class explicitly defines:
   * $$ S_1 = N(\mu = 40, \sigma_{default}) $$.
 - the prior probabilities as $$ \pi_i = \frac{1}{2} $$
 
-The forward viterbi method is then used to determine the states in the `hmm.predict()` call.
+The forward viterbi method is then used to determine the states in the `hmm.predict()` call.   `HMM2State`  is a 
+simple wrapper around the underlying scikit hmmlearn implementation that defines the model, bypassing the `fit()`
+stage.
 
 <img src="/assets/2020-09-01/ADX-denoised.png" width="800" height="550" />
 
