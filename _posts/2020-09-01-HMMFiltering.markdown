@@ -77,8 +77,8 @@ $$
 
 
 ### Observation Distributions
-Next we need to consider how the __noisy signal is mapped to these states__.  The approach that HMM takes is to
-have the notion of __observation distributions__ $$ p(y \vert x) $$, where $$ y $$ are our observations (the raw signal in this
+Next we need to consider how the __(noisy) signal is mapped to these states__.  The approach taken by HMM is to
+introduce an __observation distributions__ $$ p(y \vert x) $$, where $$ y $$ are our observations (the raw signal in this
 case) and $$ x $$ is the particular "hidden state".  
 
 Our next step is to __design an observation distribution for each state__, providing separation such that the likelihood of $$ p(y \vert x = s_i) $$
@@ -138,7 +138,8 @@ In summary, the approach to mapping a Long / Short signal or alternative configu
 - define the observation distributions in a way that separates states in the signal domain
 - define a transiton probability matrix controlling "stickiness" (amount of state transition noise)
 - define priors (typically the frequency one expects for each state)
-- apply to raw signal with above configuration to forward viterbi model
+- use the forward viterbi model to determine the state sequence $$ x_{t:0} $$ as a function of observed raw signal 
+  sequence $$ y_{t:0} $$
 
 Here is an example (which I did not attempt to optimise):
 
