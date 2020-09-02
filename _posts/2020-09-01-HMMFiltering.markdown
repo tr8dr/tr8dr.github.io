@@ -125,9 +125,9 @@ distribution CDFs.
 ### Filtering (summary)
 In summary, the approach to mapping a Long / Short signal or alternative configuration of states is to:
 
-- define the observation distributions in a way that separates the signal space, distinguishing states
+- define the observation distributions in a way that separates states in the signal domain
 - define a transiton probability matrix controlling "stickiness" (amount of state transition noise)
-- define priors (typically )
+- define priors (typically the frequency one expects for each state)
 - apply to raw signal with above configuration to forward viterbi model
 
 Here is an example (which I did not attempt to optimise):
