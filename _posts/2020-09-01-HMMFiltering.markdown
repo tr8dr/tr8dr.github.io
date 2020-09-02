@@ -33,6 +33,7 @@ The denoised signal (pictured as the green line), makes use of a hidden markov m
 In the application above we are interested in assigning states (or levels) +1 and 0, removing the noise from our signal.
 Let's consider a common scenario where we want to assign { Short, Neutral, Long } states to a noisy signal.
 
+### State System
 To do this can construct a 3 state system and assign transition probabilities, for example probability of transitioning from
 Long to Short, Neutral to Long, remaining in the same state, etc.
 
@@ -65,22 +66,23 @@ P_{short \rightarrow short} & \frac{1}{2} (1 - P_{short \rightarrow short}) & \f
 \end{bmatrix}
 $$
 
+### Observation Distributions
 Next we need to consider how the __noisy signal is mapped to these states__.  The approach that HMM takes is to
 have the notion of __observation distributions__ $$ p(y \vert x) $$, where $$ y $$ are our observations (the raw signal in this
 case) and $$ x $$ is the particular "hidden state".  
 
-Hence we want to design or otherwise determine observation distributions that provide the likelihood of being in a particular
-state.  Given a symmetric signal between -1 and +1, we could design the observation distributions as follows (I will show for
-the 2 state long/short for visual clarity):
-
-<img src="/assets/2020-09-01/observation-dist.png" width="750" height="550" />
-
-By positioning the observation distributions near +1 and -1 observing a raw signal sequence $$ y_n, y_{n-1}, .. y_0 $$, we
-can observe the likelihood that $$ y_i $$ belongs to either the long state or short state, defined by:
+Our next step is to __design an observation distribution for each state__, providing separation such that the likelihood of $$ p(y \vert x = s_i) $$
+versus $$ p(y \vert x = s_j) $$ are significantly different for signal values that should be mapped to state $$ s_i $$ versus state $$ s_j $$ 
+respectively.  In the example below I map a noisy signal into 2 states { long, short }, using normal distributions:
 
 - long state: $$ p(y \vert x = long) = N(+0.65, \sigma) $$ or
 - short state $$ p(y \vert x = short) = N(-0.65, \sigma) $$.
 
+See below:
+
+<img src="/assets/2020-09-01/observation-dist.png" width="750" height="550" />
+
+### Tying it together with HMM
 The observation distribution provides us with $$ p(y \vert x = s) $$, but what we are looking for is 
 $$ p(x = s \vert y_n, y_{n-1}, .. y_0) $$, i.e. the probability of being on state "s" given the observation 
 sequence (our noisy signal), $$ y_n, y_{n-1}, .. y_0 $$.
@@ -100,8 +102,25 @@ where $$ p(x_t \vert x_{t-1}) $$ is our transition probability across all possib
 $$ p(y_t \vert x_t) $$ is our observation distribution for given state at $$ x_t $$.  For t = 0, $$ \alpha_t(x_t) $$ is defined in terms
  of the prior distributions for each state as $$ p(y_0 \vert x_0 = s) \pi_s $$   
 
-The above is decomposed into a dynamic programming problem and computed in log-likelihood space to avoid underflow.  I can 
-go into the implementation in another note if there is interest.
+The above is decomposed into a dynamic programming problem.  The algorithm in pseudo code is as follows:
+
+```python
+# initialize time step 0 using state priors and observation dist p(y | x = s)
+for si in states:
+    alpha[t = 0, state = si] = pi[si] * p(y[0] | x = si)
+
+# determine alpha for t = 1 .. n
+for t in 1 .. n:
+    for sj in states:
+        alpha[t,sj] = max([alpha[t-1,si] * M[si,sj] for si in states]) * p(y[t] | x = sj)     
+
+# determine current state at time t
+return argmax(alpha[t,si] over si)
+
+```
+Note that the above would be restated in log likelihood space to avoid underflow and avoid having to compute the
+distribution CDFs.
+
 
 ### Filtering (summary)
 In summary, the approach to mapping a Long / Short signal or alternative configuration of states is to:
