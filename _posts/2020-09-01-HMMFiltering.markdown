@@ -88,7 +88,7 @@ $$ p(x = s \vert y_n, y_{n-1}, .. y_0) $$, i.e. the probability of being on stat
 sequence (our noisy signal), $$ y_n, y_{n-1}, .. y_0 $$.
 
 The HMM model ties the transition probability matrix $$ M $$, our observation probability distributions $$ p(y \vert x = s) $$, and
-state probability priors \[1\] $$ { \pi_{s = short}, \pi_{s = neutral}, \pi_{s = long} } $$ into a __model which determines the most
+state probability priors $$ { \pi_{s = short}, \pi_{s = neutral}, \pi_{s = long} } $$ into a __model which determines the most
 likely state as we proceed along the sequence of observations__. (The priors are typically determined as the frequency of each state such as 1/3, 1/3, 1/3).
 
 As concisely [described here](https://en.wikipedia.org/wiki/Forward_algorithm), at each time step in the sequence we
