@@ -90,15 +90,15 @@ state probability priors \[1\] $$ { \pi_{s = short}, \pi_{s = neutral}, \pi_{s =
 likely state as we proceed along the sequence of observations__. (The priors are typically determined as the frequency of each state such as 1/3, 1/3, 1/3).
 
 As concisely [described here](https://en.wikipedia.org/wiki/Forward_algorithm), at each time step in the sequence we
-the likelihood for being on each state as:
+compute the likelihood of being on state $$ x_t = s $$ as:
 
 $$
 \alpha_t(x_t) = p(y_t \vert x_t) \sum_{x_{t-1}} p(x_t | x_{t-1}) \alpha_{t-1}(x_{t-1})
 $$
 
-where $$ p(x_t \vert x_{t-1}) $$ is for any state pair (i,j) our transition probability as defined by $$ M $$ and 
-$$ p(y_t \vert x_t) $$ is our observation distribution for given state at $$ x_t $$.  For t = 0, the priors $$ \pi_s $$ are used
-instead of the transition matrix, as at t = 0, we do not yet have an initial state.  
+where $$ p(x_t \vert x_{t-1}) $$ is our transition probability across all possible combinations of states as defined by $$ M $$ and 
+$$ p(y_t \vert x_t) $$ is our observation distribution for given state at $$ x_t $$.  For t = 0, $$ \alpha_t(x_t) $$ is defined in terms
+ of the prior distributions for each state as $$ p(y_0 \vert x_0 = s) \pi_s $$   
 
 The above is decomposed into a dynamic programming problem and computed in log-likelihood space to avoid underflow.  I can 
 go into the implementation in another note if there is interest.
@@ -114,14 +114,10 @@ In summary, the approach to mapping a Long / Short signal or alternative configu
 Here is an example (which I did not attempt to optimise):
 
 ```python
-import pandas as pd
 from tseries_patterns.ml.hmm import HMM2State
-from tseries_patterns.common import scale_x_datetime_auto
 from tseries_patterns.data import YahooData
-
 from talib import ADX
-import plotnine
-from plotnine import *
+
 
 # get price bars
 yahoo = YahooData()
@@ -136,19 +132,7 @@ hmm = HMM2State (means = [10, 40], ss_prob = 0.9999)
 denoised = 10 + hmm.predict(rawsignal.dropna()) * 30
 
 # plot
-prices = pd.DataFrame({'date': aapl.index, 'price': aapl.close, 'pane': ' price', 'what': 'price'})
-
-metrics = pd.concat([
-    pd.DataFrame({'date': rawsignal.index, 'value': rawsignal, 'pane': 'indicator', 'what': 'raw signal'}),
-    pd.DataFrame({'date': denoised.index, 'value': denoised, 'pane': 'indicator', 'what': 'denoised'}),
-])
-
-plotnine.options.figure_size = (10,8)
-(ggplot() + 
-     geom_line(aes(x='date', y='price'), color='darkgrey', data=prices) +
-     geom_line(aes(x='date', y='value', color='what'), data=metrics) +
-     scale_x_datetime_auto (prices["date"], (10,8)) +
-     facet_grid('pane ~ .', scales='free_y'))
+...
 ```
 
 The above `HMM2State` class explicitly defines:
