@@ -1,0 +1,103 @@
+---
+author: tr8dr
+comments: true
+date: 2020-11-25 11:00:00+00:00
+layout: post
+title: Thoughts on Crypto Market Making
+subtitle: 
+categories:
+- strategies
+---
+In the past have been a HFT market maker for FX and other traditional instruments, however have not investigated exchange-based 
+market making in Crypto.  As I have proprietary signals applicable for Crypto, thought it would be worthwhile to investigate the 
+difficulty of market making on crypto exchanges.
+
+The crypto ecosystem and microstructure is quite different from FX and equities in the following ways:
+
+- __extremely high transaction costs__ on many exchanges
+  * for example the US spot exchanges charge out at 25bps maker / taker on the lowest volume tier
+  * derivatives exchanges tend to charge a somewhat more reasonable 0 - 5 bps maker / 5bps taker, more or less
+  * BitMEX is an exception, providing a 2.5bps rebate for maker trades, though charges 5bps for aggressive
+    exits.
+- __very tight inside spread__, where the spread is 1 to 2 orders of magnitude smaller than transaction costs
+  * spreads are generally in fractions of a basis point (for example 0.3 bps on BitMEX)
+  * the real spread for size is quite a bit wider, however much of the volume is provided near the BBO I believe.
+  * whereas maker transaction costs may generally be 0, have to factor in taker transaction costs for situations 
+    where a position needs to be aggressively liquidated.
+- __trades directionally__ on short timescales
+  * observation that trading tends to move in waves where is largely buys or sells for extended periods, much more often 
+    than an even balance of buys and sells
+- __high volatility__
+
+
+Given the above, crypto MM requires a __somewhat different approach__. Instead of trying to __capture spread__, as one might do with
+more traditional assets, consider trying to capture somewhat longer term mean-reversion cycles.
+
+
+## Analysis
+Examining the most recent year of tick data, did the following analysis:  assuming we have attracted a long (short) position
+at the BBO: 
+
+- what __% of the time can can one liquidate__ a long (short) position for a __K bps profit target__
+  * for K = 5, 10, 25, 50, 100 bps
+- __unrealized drawdown__ one would have to ride through to liquidate for a K bps target
+  * 50% and 75% quantile (drawdown 50% and 75%)
+- __time to liquidation__
+  * how long does it take on average to liquidate a position for a K bps profit (Tcleared), 
+- __cost of failure to hedge__ (rfailed)
+  * return if position closed after 1hr (for 5bps, 10bps) or 2hrs for 25 - 50 bps targets
+
+
+### 5bps target
+
+/          | % liquidated | Tcleared (mins) | Drawdown 50% | Drawdown 75%   | rfailed   
+-----------|--------------|-----------------|--------------|----------------|-------------|
+long       |     82.3%    |      9.7 mins   | 9.3 bps      |  27.81 bps     | -42.9 bps   |
+short      |    82.8%     |     9.6 mins    | 5.23 bps     | 10.95 bps      | -43.0 bps   |
+
+### 10bps target
+
+/          | % liquidated | Tcleared (mins) | Drawdown 50% | Drawdown 75%   | rfailed
+-----------|--------------|-----------------|--------------|----------------|-------------|
+long       |     81.2%    |      20.6 mins  | 15.4 bps     |  44.73 bps     | -46.8 bps   |
+short      |    81.9%     |     20.5 mins   | 5.23 bps     | 18.10 bps      | -46.4 bps   |
+
+### 25bps target
+
+/          | % liquidated | Tcleared (mins) | Drawdown 50% | Drawdown 75%   | rfailed
+-----------|--------------|-----------------|--------------|----------------|-------------|
+long       |     62.0%    |      34.8 mins  | 44.1 bps     |  81.3 bps      | -34.5 bps   |
+short      |    63.0%     |     34.7 mins   | 9.6 bps      | 25.2 bps       | -34.4 bps   |
+
+### 50bps target
+
+/          | % liquidated | Tcleared (mins) | Drawdown 50% | Drawdown 75%    | rfailed
+-----------|--------------|-----------------|--------------|-----------------|-------------|
+long       |     53.3%    |      81.1 mins  | 83.4 bps     |  140.0 bps      | -43.4 bps   |
+short      |    54.6%     |     80.5 mins   | 17.0 bps     | 42.2 bps        | -44.4 bps   |
+
+
+## Discussion
+__At first glance the numbers look quite attractive__ with 80%+ hedge achieved for targets 10bps and below; However if one
+considers the cost of outliers (i.e. the remaining 18% that failed to close), a naive strategy would be negative.
+For example the 10bps target skirts at the boundary of profitability:
+
+```
+81.2% x 10 - 18.8% x 46.8 -> -0.68 bps / position
+```
+
+Conditioning on various signals I have been able to __increase liquidation % to up to 97%__, however one still has to deal
+with the hedge distribution left tail.   Hence I think the approach needs to be one of:
+
+1. a __dynamic hedge model__, where forecasted hedge target is variable 
+   * the goal would be that the larger targets would absorb the impact of the left tail
+   * I have built this sort of model before, however they are non-trivial
+2. __conditionally enter the market__ passively when conditions have high probability outcomes
+   * this might not be a high-volume strategy, rather very sporadic and selective
+3. __access bi-directional flow__ (possibly off exchange) to get more natural crossing
+   * reducing the holding time for a position reduces the magnitude of the right tails; that said, while the tails
+     may be smaller, the relative ratio of tail size to positive P&L can still handicap such a strategy.
+     
+
+
+
