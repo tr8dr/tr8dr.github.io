@@ -164,7 +164,7 @@ Removing the market features and only retaining the analyst ratings only reduces
 | Positive  | 87082    | 56956    | 60%      |
 | Negative  | 18949    | 42132    | 69%      |
 
-I also evaluated on S&P 500 stocks in the GICS Technology sector and this produced an __much better accuracy__; I suspect that
+I also evaluated on S&P 500 stocks in the GICS Technology sector; training within a sector resulted in __much better accuracy__; I suspect that
 analysts that cover particular sectors will have specific patterns of behavior in terms of how they rank, distinct from
 other sectors:
 
