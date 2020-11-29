@@ -86,8 +86,11 @@ For example the 10bps target skirts at the boundary of profitability:
 81.2% x 10 - 18.8% x 46.8 -> -0.68 bps / position
 ```
 
-Conditioning on various signals I have been able to __increase liquidation % to up to 97%__, however one still has to deal
-with the hedge distribution left tail.   Hence I think the approach needs to be one of:
+With a 2.5bps rebate on BitMEX, would lead to a __2 bps+ / position profit on average__, assuming passive entry and exit.  However,
+with some additional intelligence should be able to do better.
+
+Conditioning on various signals I have been able to __increase the profitable liquidation % to up to 97%__, however at the cost
+of much lower volume.   Hence I think the approach needs to be one of:
 
 1. a __dynamic hedge model__, where forecasted hedge target is variable 
    * the goal would be that the larger targets would absorb the impact of the left tail
