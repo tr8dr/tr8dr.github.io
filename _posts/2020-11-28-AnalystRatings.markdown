@@ -3,7 +3,7 @@ author: tr8dr
 comments: true
 date: 2020-11-28 11:00:00+00:00
 layout: post
-title: Accuracy of Analyst Ratings (US Equities)
+title: Analyst Ratings → Return Prediction
 subtitle: 
 categories:
 - strategies
