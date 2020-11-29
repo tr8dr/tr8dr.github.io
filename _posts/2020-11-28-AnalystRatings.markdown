@@ -150,7 +150,7 @@ on other stocks (such as GE).  I suspect the problem is that I am training (and 
 
 ### Classification Across Stocks
 I generated features and labels for __all S&P 500 stocks__, combining them together to generate a large data set.  This
-produced a __result with much better accuracy__:
+produced a __result with better accuracy__:
 
 | /         | Positive | Negative | Accuracy |
 |-----------|----------|----------|----------|
