@@ -164,8 +164,15 @@ Removing the market features and only retaining the analyst ratings only reduces
 | Positive  | 87082    | 56956    | 60%      |
 | Negative  | 18949    | 42132    | 69%      |
 
-I also evaluated on a smaller related group of equities and this produced an __even better accuracy of 81%__; I suspect that
-analysts that cover particular sectors will have specific patterns of behavior in terms of how they rank.
+I also evaluated on S&P 500 stocks in the GICS Technology sector and this produced an __much better accuracy__; I suspect that
+analysts that cover particular sectors will have specific patterns of behavior in terms of how they rank, distinct from
+other sectors:
+
+| /         | Positive | Negative | Accuracy |
+|-----------|----------|----------|----------|
+| Positive  | 13932    | 5006     | 74%      |
+| Negative  | 800      | 7129     | 90%      |
+
 
 ## Next Steps
 When I revisit this will look at:
