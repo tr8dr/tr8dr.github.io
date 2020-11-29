@@ -44,8 +44,8 @@ aapl.recommendations
 
 ## The Plan
 Given a timeseries of analyst ratings, I want to relate these to returns on various forward windows.  It
-would make sense to try to predict the sign of forward returns rather than the magnitudes (which would be nearly impossible
-to predict purely on ratings).  One could use Logistic Regression if targeting binary labels (+1, -1) or one of the multi-class
+would make sense to try to predict the sign of forward returns rather than the sign+magnitude (which would be nearly impossible
+to predict).  One could use Logistic Regression if targeting binary labels (+1, -1) or one of the multi-class
 classifiers, such as Random Forest.
 
 As we are often concerned with the relative performance of a stock as compared to either market or sector, can measure 
