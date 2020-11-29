@@ -155,14 +155,14 @@ produced a __result with much better accuracy__:
 | /         | Positive | Negative | Accuracy |
 |-----------|----------|----------|----------|
 | Positive  | 92235    | 59586    | 61%      |
-| Negative  | 14004    | 39869    | 74%      |
+| Negative  | 14004    | 39869    | 75%      |
 
 Removing the market features and only retaining the analyst ratings only reduces the accuracy slightly:
 
 | /         | Positive | Negative | Accuracy |
 |-----------|----------|----------|----------|
 | Positive  | 88739    | 58472    | 60%      |
-| Negative  | 17500    | 40983    | 70%      |
+| Negative  | 17500    | 40983    | 69%      |
 
 I also evaluated on a smaller related group of equities and this produced an __even better accuracy of 81%__; I suspect that
 analysts that cover particular sectors will have specific patterns of behavior in terms of how they rank.
