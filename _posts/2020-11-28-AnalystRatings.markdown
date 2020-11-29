@@ -126,9 +126,8 @@ Running variable importance on other stocks (such as KO, MSFT, BBY, ...) saw ver
 seems that __no one analyst (firm) is particularly accurate__.  However the moving average of the combined scores seems
 to have relevance for forward returns.
 
-The good news is that __the combined analyst rankings were more relevant than prior returns__, given the earlier ranking
-in the list that relative or absolute prior returns.  This points to __more information in the ensemble of analysts__,
-than is present in the prior returns.
+The good news is that __the combined analyst rankings are more relevant than prior returns__ for predicting forward
+return.  This points to __more information in the ensemble of analysts__, than is present in the prior returns.
 
 ### Classification On Individual Stocks
 We have 2 significant problems in running a classification on daily equity data:
