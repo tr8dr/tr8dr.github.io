@@ -151,7 +151,7 @@ on other stocks (such as GE).  I suspect the problem is that I am training (and 
 
 ### Classification Across Stocks
 I generated features and labels for __all S&P 500 stocks__, combining them together to generate a large data set.  This
-produced a __result with much better accuracy__.  Evaluating across the S&P 500 resulted in the following accuracy:
+produced a __result with much better accuracy__:
 
 | /         | Positive | Negative | Accuracy |
 |-----------|----------|----------|----------|
@@ -165,7 +165,7 @@ Removing the market features and only retaining the analyst ratings only reduces
 | Positive  | 88739    | 58472    | 60%      |
 | Negative  | 17500    | 40983    | 70%      |
 
-I also evaluated on a smaller related groups of equities and this produced an __even better accuracy of 81%__; I suspect that
+I also evaluated on a smaller related group of equities and this produced an __even better accuracy of 81%__; I suspect that
 analysts that cover particular sectors will have specific patterns of behavior in terms of how they rank.
 
 ## Next Steps
