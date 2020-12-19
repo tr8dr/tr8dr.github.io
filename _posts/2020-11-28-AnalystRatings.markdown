@@ -182,5 +182,16 @@ When I revisit this will look at:
 - potentially drop the lowest accuracy analysts to build a better combined score
 - adding various market signals to improve accuracy
 
+## Addendum
+Note that the above analysis overstates analyst accuracy in that it allows analysts to adjust their rating after a stock 
+has started a downward (upward) move.  The approach I took with the analysis was to evaluate the forward 20 day return 
+for each day relative to the combined analyst score.   Here is a scenario that would show lag in analysts predictions
+but still allow them to achieve a high score in the above analysis:
 
-  
+1. analysts combined score shows a buy
+2. stock drops significantly over the course of a week
+3. analysts adjust to lower score (sell or underweight)
+4. stock continues to drop for the next couple of months
+
+Only 1 week out of 9 weeks would show bad accuracy in the above scenario.  Meanwhile, you might have purchased the 
+stock at the beginning of week 1 based on analyst's positive scoring.
