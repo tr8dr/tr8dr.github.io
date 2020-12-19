@@ -47,5 +47,9 @@ Here is a zoom in on the 2019 move:
 2. Too short of a history to have a high degree of statistical confidence.
 3. Narrative seems makes sense, however
 
-Would also note that transaction count is signalling high currently, so may point to continued price appreciation beyond
-current levels.
+I have not put all that much time into longer-term signals in crypto, but am sure there are more than can be employed.
+A friend of mine pointed me to the site: [glassnode](https://glassnode.com/), which has a number of different metrics
+which may be useful.
+
+Would also note that transaction count (as of 2020-12-18) is signalling high currently, so may point to continued price 
+appreciation beyond current levels - we shall see.
