@@ -9,8 +9,8 @@ categories:
 - strategies
 ---
 I have been thinking about the recent institutional buying that has propelled the price of bitcoin to stratospheric levels; in 
-particular considering how one might detect some of this interest early.  Bitcoin and crypto in general is quite interesting 
-in that at some level, due to the decentralized ledger, there is more transparency in this market than any other financial market.  
+particular considering how one might detect some of this interest early.  Bitcoin and crypto, in general, is quite interesting 
+in that due to the decentralized ledger, there is more transparency in this market than any other financial market.  
 
 The majority of transactions, at this point, occur off chain on exchanges.   However, if one wanted to buy into a large
 position, would first try to locate blocks (large size) in the OTC market.  Miners, for example, tend to be natural
@@ -18,7 +18,7 @@ sellers, as accumulate long positions and need to offload at least some of this 
 coin in the OTC market can potentially get into a portion of the position with minimal impact on lit markets (exchanges).
 
 The hypothesis, then, is that the market will first show signal in terms of # or size of transactions on the chain before it 
-manifest in terms of price.  Big buyers will resort to the exchange once they have exhausted OTC opportunities.  Once 
+manifests in terms of price.  Big buyers will resort to the exchange once they have exhausted OTC opportunities.  Once 
 exchange buying commences, the price will accelerate.
 
 Bitcoin nodes have the notion of "mempool", which is basically a cache of pending transactions.  This pool can be sampled
