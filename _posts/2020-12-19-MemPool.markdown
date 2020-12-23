@@ -53,3 +53,8 @@ which may be useful.
 
 Would also note that transaction count (as of 2020-12-18) is signalling high currently, so may point to continued price 
 appreciation beyond current levels - we shall see.
+
+## Addendum
+(2020-12-19) The transaction spike that started on Dec 16th was descending from the high on Dec 18th.  Bitcoin continued upward 5% or so and then
+went sideways post Dec 19th.  Here is a good site for observing the transaction activity [transaction spike activity](https://jochen-hoenicke.de/queue/#0,3m).  Looks like the move is done for now.
+
