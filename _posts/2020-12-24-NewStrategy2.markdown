@@ -84,3 +84,6 @@ however, I need to get this up and running systematically.  Status of work to be
    * I am quite familiar with R/shiny as a way to quickly put up a UI for monitoring & controls.  However I prefer 
      Python over R.  Dash is far less mature, but may attempt to put something together with it.
 
+While trading retail may make sense for a period, for tax reasons it may make sense to trade this out of a different
+structure.  I need to understand the various ways I can set this up.  I want to avoid paying short-term capital gains
+and be able to reinvest most of the pre-tax principal YoY.
