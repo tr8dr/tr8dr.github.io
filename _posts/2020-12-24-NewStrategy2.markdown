@@ -76,7 +76,7 @@ however, I need to get this up and running systematically.  Status of work to be
      data, but is a work in progress.
 3. __Execution__ (partially implemented)
    * I am not running AUM on this, rather just my own money.  The most economical options are the low-cost brokers that 
-     service the retail community.  [Alpaca] (https://alpaca.markets/algotrading) has the best API of the lot.  Other 
+     service the retail community.  [Alpaca](https://alpaca.markets/algotrading) has the best API of the lot.  Other 
      alternatives would be TD, e*trade, or IB.   
    * Alternatives: While TD is a large broker, their API is not streaming and their support around the API reputed to be
      poor.  IB has a well known API, but is very difficult to work with and has significant limitations (from experience).
