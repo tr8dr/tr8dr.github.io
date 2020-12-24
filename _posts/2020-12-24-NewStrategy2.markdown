@@ -55,6 +55,10 @@ very strong right tails:
 
 The above is the realized return distribution for individual assets during their holding periods. 
 
+## Other notes
+The strategy was able to take advantage of the 2020 market drawdown, an unusual circumstance.  Without the drawdown, the
+prior period CAGR would be ~30% instead of 35%. I would expect a trajectory similar to 2019 going forward now that the
+market has snapped back.
 
 ## Next Steps
 At this point have solved some important issues with the strategy and backtest.  I am starting to trade this manually,
