@@ -1,0 +1,50 @@
+---
+author: tr8dr
+comments: true
+date: 2021-01-08 11:00:00+00:00
+layout: post
+title: Tether Minting & Momentum
+subtitle:
+categories:
+- strategies
+---
+Tether started as a stable coin with a purported 1:1 backing of USD initially (though at this point we know that Tether 
+is only fractionally backed).  It is a defacto fiat currency, with fractional reserves.   For better or worse Tether (the company) acts
+as a central bank of sorts, as appears to have intervened in the market numerous times: for example evidence points to 
+Tether propping up momentum during the 2017 bubble.
+
+Since Tether (USDT) is effectively fiat,
+new USDT can be minted to buy crypto and prop up the market at little cost to Tether (the company), but at the cost of 
+dilution if the crypto trading is net negative.   Note that the evidence for the above is circumstantial but quite 
+compelling, see:
+
+- [wikipedia](https://en.wikipedia.org/wiki/Tether_(cryptocurrency))
+- [20B$ Scandal](https://medium.com/hackernoon/tethers-20-billion-scandal-here-s-what-we-know-so-far-d1934ba258bd)
+- many other sources and in-depth examinations of the data
+
+
+Aside from buying (selling) activity that Tether may or may not be doing, given that USDT has the highest cross-pair quoting 
+volume, new investors will need to buy Tether in order to transact with BTC/USDT and other cross pairs. Hence the
+rate of new Tether (USDT) issuance may be a good indicator of forward momentum (on a longer timeframes).
+
+Here is a graph showing spiking new Tether issuance before a market (BTC) move from sub $5000 to $12,500:
+
+<img src="/assets/2021-01-08/2019.png" width="800" height="600" />
+
+The next graph shows a spike in Tether issuance after the Mar 2020 Covid hiccup, where BTC/USD dropped to $3700 and 
+subsequently regained to the $10,000 mark.  Later there is a tripling of issued Tether from Oct to present, corresponding
+to the massive move from 10K$ to 35K$ (in this period):
+
+<img src="/assets/2021-01-08/2020.png" width="800" height="600" />
+
+We do see a "phantom" spike in Tether buying around 2020-05-11, with no particular forward momentum.  Other spikes and/or
+consistent buying activity to seem to occur before subsequent momentum.
+
+## Conclusions
+There is definitely a correspondence between Tether issuance spikes and subsequent momentum.  For the Q4
+trend, the buying is smoother (however massive), so does not spike in the same way.  Combining this with other 
+longer-term leading measures, like [mempool](/MemPool), should provide an enhanced view of possible forward momentum activity.
+
+I would use this to provide a low-frequency / longer-term view on forward momentum and directional skew.  Other 
+higher-freqency indicators, such as BSI (buy/sell imbalance) can provide the local view of momentum.
+
