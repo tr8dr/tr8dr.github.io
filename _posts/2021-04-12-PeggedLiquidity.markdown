@@ -59,9 +59,10 @@ Uniswap should introduce a __Pegged Liquidity__ order (contract).  The contract 
   * this avoids following the price in a flash crash or just some level below which the market maker considers
     uneconomical
     
-As the prevailing market price moves (as determined by the oracle), the liquidity moves with the price.  This will
-allow the market maker to participate in as many transactions as possible without having to move the
-liquidity position when the market moves.  
+As the prevailing market price moves (as determined by the oracle), the __liquidity moves with the price__.  This will
+allow the market maker to participate in as many transactions as possible without having to issue a new directive
+on the chain to move the liquidity position when the market moves.  This avoids the ultra-high latency (10 - 20mins) and
+costs (gas) of moving the liquidity to meet the price.
 
 One can imagine other variations of this where the liquidity positioning only changes when the price increments 
 by more than k%, keeping the liquidity/price offering constant for smaller moves.
@@ -70,12 +71,15 @@ The proposed contract solves some of the concentration problem, however, it cann
 granularity of control that is possible with centralized order books.
 
 ## Future of Uniswap
-Uniswap's achilles heel is that it is based on Ethereum.  This has served it well until recently as many of the
-coins traded on Uniswap are ERC-20 token, avoiding the need for Ethereum based proxy coins.  However, Ethereum has
-some substantial problems for a DEX:
+Uniswap's Achilles heel is that it is based on the Ethereum blockchain.  This has served it well until recently as many of the
+coins traded on Uniswap are ERC-20 tokens, avoiding the need for Ethereum-transplanted proxy coins.  However, Ethereum
+presents substantial problems for a DEX:
 
 - non-deterministic transactions (required K blocks to verify transaction, much like bitcoin)
-  * hence ultra-high latency
+  * by non-deterministic mean that addition of a transaction to a block does not guarantee the transaction;
+    rather the transaction can be assured after a certain number of blocks are added on the branch with
+    the transaction.
+  * this increases latency substantially
 - scalability concerns (perhaps mitigated with side-chains)
   * however side-chains are not the most elegant solution and may present new attack vectors
 - high costs (gas fees)
