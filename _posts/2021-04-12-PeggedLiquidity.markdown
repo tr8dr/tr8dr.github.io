@@ -17,8 +17,9 @@ current V2, such as:
 - advances in oracle efficiency and new oracle types  
 - ..
 
-For a market maker, the most important of these is the ability to "concentrated" liquidity.  What does this 
-mean?  In V2, one's __liquidity was uniformly distributed across all price levels__ up to infinity.  In limit-order book
+For a market maker, the most important of these is the ability to "concentrate" liquidity.  What does this 
+mean?  As of V2, one's __liquidity was uniformly distributed across all price levels__, as opposed to being distributed
+near the prevailing price.  In limit-order book
 terms, this would be equivalent to offering 1/k coins at each price level (given a maximum of K price levels).
 This is __very capital inefficient__ as most trading occurs near the prevailing market price.
 
