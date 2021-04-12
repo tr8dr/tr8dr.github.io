@@ -59,9 +59,15 @@ Uniswap should introduce a __Pegged Liquidity__ order (contract).  The contract 
   * this avoids following the price in a flash crash or just some level below which the market maker considers
     uneconomical
     
-The proposed contract solves some of the problem, in that one's liquidity can track the price and be
-more active in the market. However, it cannot go as far in offering the granularity of control that is typical
-in centralized order books.
+As the prevailing market price moves (as determined by the oracle), the liquidity moves with the price.  This will
+allow the market maker to participate in as many transactions as possible without having to move the
+liquidity position when the market moves.  
+
+One can imagine other variations of this where the liquidity positioning only changes when the price increments 
+by more than k%, keeping the liquidity/price offering constant for smaller moves.
+    
+The proposed contract solves some of the concentration problem, however, it cannot go as far in offering the
+granularity of control that is possible with centralized order books.
 
 ## Future of Uniswap
 Uniswap's achilles heel is that it is based on Ethereum.  This has served it well until recently as many of the
