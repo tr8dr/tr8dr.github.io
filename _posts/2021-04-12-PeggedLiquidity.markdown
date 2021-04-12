@@ -94,11 +94,11 @@ The future for DEFI / DEX's is likely to be on one of the newer blockchains, one
 - interop with other chains
 
 In this regard, __Cosmos__ looks quite attractive.  There are other blockchains and DEFI projects in competition
-for the DEFI space (I will not enumerate them here).  The Ethereum Blockchain, unlike the Bitcoin chain is 
-innovating quickly, so while chains such as Cosmos are quite attractive, the momentum and the early lead of
-the Etherium ecosystem could still win out in the end.
+for the DEFI space (I will not enumerate them here).  The Ethereum Blockchain is innovating quickly (unlike the Bitcoin 
+chain).  The momentum and the early lead of the Ethereum ecosystem could still win out in the end, in spite of the
+attractive properties of these newer chains.  
 
-Perhaps, though, the answer is not one L1 chain technology, but rather the projects that allow are the __inter__-net
-of block chains.  __Cosmos__ is playing in this direction.
+Perhaps, though, the answer is not one L1 chain technology, but rather the projects that allow an __inter__-net
+of block chains - allow multiple chains to coexist and seemlessly interoperate.  __Cosmos__ is playing in this direction.
 
 
