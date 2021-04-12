@@ -1,0 +1,332 @@
+I"�-<p>I have a couple of equities strategies that I will start trading shortly, and I want to understand the risk from all
+angles.  Towards this end I try to utilize both market signals and exogenous unstructured data to minimize
+surprise and maximize selection or prediction efficiency.   In thinking about single name risks (i.e. the risk associated 
+with selecting and trading a particular stock), I wanted to examine is if there is any signal or risk measure I could
+derive from <strong>analyst ratings</strong>.</p>
+
+<p>Analysts at banks and other financial institutions rate stocks that they cover, loosely according to the following
+scheme:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Score</th>
+      <th>Alternative names</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Buy</td>
+      <td>+2</td>
+      <td>Strong Buy, Conviction Buy, Top Pick, …</td>
+    </tr>
+    <tr>
+      <td>Outperform</td>
+      <td>+1</td>
+      <td>Sector Outperform, Speculative Buy, Overweight, …</td>
+    </tr>
+    <tr>
+      <td>Hold</td>
+      <td>0</td>
+      <td>Sector Perform, Neutral, Sector Weight, …</td>
+    </tr>
+    <tr>
+      <td>Underperform</td>
+      <td>-1</td>
+      <td>Market Underperform, Sector Underperform, …</td>
+    </tr>
+    <tr>
+      <td>Sell</td>
+      <td>-2</td>
+      <td>Strong Sell, Reduce, Trim, …</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>In evaluating the top 2000 stocks I encountered 44 different rating names, for which mapped into the above 5 level
+scoring scheme.</p>
+
+<h2 id="sourcing-the-data">Sourcing the Data</h2>
+<p>Yahoo Finance provides a timeseries of ratings via its JSON api.  Conveniently, the python <code class="language-plaintext highlighter-rouge">yfinance</code> package
+already has implemented this functionality:</p>
+
+<pre><code class="language-Python">import yfinance as yf
+
+# get reference to all Apple data (historical bars, ratings, financials, ...)
+aapl = yf.Ticker("AAPL")
+# pull ratings data
+aapl.recommendations
+
+</code></pre>
+
+<h2 id="the-plan">The Plan</h2>
+<p>Given a timeseries of analyst ratings, I want to relate these to returns on various forward windows.  It
+would make sense to try to predict the sign of forward returns rather than the sign+magnitude (which would be nearly impossible
+to predict).  One could use Logistic Regression if targeting binary labels (+1, -1) or one of the multi-class
+classifiers, such as Random Forest.</p>
+
+<p>As we are often concerned with the relative performance of a stock as compared to either market or sector, can measure 
+the returns in the following different ways:</p>
+
+<ul>
+  <li><strong>relative to sector</strong>: stock return - sector ETF return</li>
+  <li><strong>relative to market</strong>: stock return - market return (S&amp;P 500)</li>
+  <li><strong>absolute return</strong>: raw stock return</li>
+</ul>
+
+<p>As for features we could create a number of different features:</p>
+
+<ul>
+  <li>rating for each individual analyst (firm)</li>
+  <li>mean rating across analysts</li>
+  <li>moving average of ratings across analysts</li>
+  <li>prior returns</li>
+  <li>derivatives of all of the above</li>
+</ul>
+
+<p>Using a L1 loss function (or the Gini importance in the case of RandomForest) would tend to deselect features (and analysts) that don’t 
+lead to accurate forward predictions.</p>
+
+<h2 id="some-initial-analysis">Some Initial Analysis</h2>
+<p>Before doing the above analysis, wanted to make sure that the ratings data could pass a first
+round of scrutiny (“eyeballing” it).  I purposely <strong>chose stocks showing underperformance</strong> or outright negative returns, to see how 
+analysts did in these scenarios.</p>
+
+<h3 id="ge">GE</h3>
+<p>GE has been in decline since 2017, so is a good test of negative sentiment.  While there were some analysts with sell 
+ratings, on average analysts where rating GE at neutral (0) to overperform (1) in the 2017 - 2019 period, whereas an “oracle”
+would have indicated a “sell” (-2).  Analysts are often reluctant to indicate a sell as may impact their business with the 
+company in question (a conflict of interest).</p>
+
+<p><img src="/assets/2020-11-28/GE-abs.png" width="800" height="500" /></p>
+
+<p>In the case of GE, it does seem like analysts reduced their rating ahead of a big move downwards and adjust upward at
+the end of the large move (so in this particular circumstance it seems like a successful change in consensus).  However 
+I would have liked to see this go into negative territory, at least to -1.</p>
+
+<h3 id="coca-cola">Coca Cola</h3>
+<p>Coca Cola is progressing upwards over the 10 year period, however is underperforming both the market and its sector.  Below
+are the graphs of absolute returns and relative returns:</p>
+
+<p><img src="/assets/2020-11-28/KO-abs.png" width="800" height="500" /></p>
+
+<p><img src="/assets/2020-11-28/KO-rel.png" width="800" height="500" /></p>
+
+<h2 id="analysis">Analysis</h2>
+<p>Created the following features (as a timeseries matrix)</p>
+
+<ul>
+  <li><strong>individual firm rating</strong> (in numeric form: -2 to +2)
+    <ul>
+      <li>seen as features: “Wells Fargo”, “Pacific Crest”, …</li>
+    </ul>
+  </li>
+  <li><strong>mean combined rating</strong>
+    <ul>
+      <li>seen as feature: combined</li>
+    </ul>
+  </li>
+  <li><strong>MA of combined score</strong> on different EWMA windows (20, 50, 100 days)
+    <ul>
+      <li>seen as features: score20, score50, score100</li>
+    </ul>
+  </li>
+  <li><strong>derivative of score</strong> MAs:
+    <ul>
+      <li>seen as features: df20, df50, df100</li>
+    </ul>
+  </li>
+  <li><strong>relative prior returns</strong> (relative to sector ETF) on 10 - 200 days
+    <ul>
+      <li>seen as features: relr10, relr10, … relr200</li>
+    </ul>
+  </li>
+  <li><strong>absolute prior returns</strong> on 10 - 200 days
+    <ul>
+      <li>seen as features: absr10, absr10, … absr200</li>
+    </ul>
+  </li>
+</ul>
+
+<p>The labels targeted a 22 day (approx 1mo) forward return.  I tried all of the following variations:</p>
+
+<ul>
+  <li><strong>3 labels</strong>: assigned as 0 if return &lt; 2%, and -1 or +1 if magnitude above 2%</li>
+  <li><strong>3 labels</strong>: volatility adjusted thresholds for +1 and -1, 0 otherwise</li>
+  <li><strong>2 labels</strong>: assigned based on positive or negative</li>
+  <li><strong>2 labels</strong>: +1 for large outlier + returns</li>
+  <li><strong>2 labels</strong>: +1 for large outlier - returns</li>
+</ul>
+
+<h3 id="feature-importance">Feature Importance</h3>
+<p>Apply an iterative Random Forest Feature Importance algorithm, determined the following feature importance for
+AAPL:</p>
+
+<p><img src="/assets/2020-11-28/importance.png" width="250" height="500" /></p>
+
+<p>Running variable importance on other stocks (such as KO, MSFT, BBY, …) saw very similar importance ranking.  It
+seems that <strong>no one analyst (firm) is particularly accurate</strong>.  However the moving average of the combined scores seems
+to have relevance for forward returns.</p>
+
+<p>The good news is that <strong>the combined analyst rankings are more relevant than prior returns</strong> for predicting forward
+return.  This points to <strong>more information in the ensemble of analysts</strong>, than is present in the prior returns.</p>
+
+<h3 id="classification-on-individual-stocks">Classification On Individual Stocks</h3>
+<p>We have 2 significant problems in running a classification on daily equity data:</p>
+
+<ul>
+  <li>limited # of samples
+    <ul>
+      <li>the yahoo analyst rating data begins in mid 2012, so only allows us 8 years of data or (2140 rows in our case)</li>
+    </ul>
+  </li>
+  <li>equities have had a long bias, reducing the # of negative returns to sample
+    <ul>
+      <li>this is somewhat mitigated by evaluating against relative returns</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Running the above features against relative returns for AAPL for example led to this sort of out-of-sample 
+confusion matrix:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>/</th>
+      <th>Positive</th>
+      <th>Negative</th>
+      <th>Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Positive</td>
+      <td>44</td>
+      <td>6</td>
+      <td>88%</td>
+    </tr>
+    <tr>
+      <td>Negative</td>
+      <td>340</td>
+      <td>110</td>
+      <td>25%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>This <strong>is not a good result</strong> as is, on average, only slightly better than random.  I achieved even worse confusion matrices
+on other stocks (such as GE).  I suspect the problem is that I am training (and testing) on too few samples.</p>
+
+<h3 id="classification-across-stocks">Classification Across Stocks</h3>
+<p>I generated features and labels for <strong>all S&amp;P 500 stocks</strong>, combining them together to generate a large data set.  This
+produced a <strong>result with better accuracy</strong>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>/</th>
+      <th>Positive</th>
+      <th>Negative</th>
+      <th>Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Positive</td>
+      <td>92040</td>
+      <td>58150</td>
+      <td>61%</td>
+    </tr>
+    <tr>
+      <td>Negative</td>
+      <td>13991</td>
+      <td>40938</td>
+      <td>75%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Removing the market features and only retaining the analyst ratings only reduces the accuracy slightly:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>/</th>
+      <th>Positive</th>
+      <th>Negative</th>
+      <th>Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Positive</td>
+      <td>87082</td>
+      <td>56956</td>
+      <td>60%</td>
+    </tr>
+    <tr>
+      <td>Negative</td>
+      <td>18949</td>
+      <td>42132</td>
+      <td>69%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>I also evaluated on S&amp;P 500 stocks in the <strong>GICS Technology sector</strong>; training within a sector resulted in <strong>very high accuracy</strong>; I suspect that
+analysts that cover particular sectors will have specific patterns of behavior in terms of how they rank, distinct from
+other sectors:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>/</th>
+      <th>Positive</th>
+      <th>Negative</th>
+      <th>Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Positive</td>
+      <td>13932</td>
+      <td>5006</td>
+      <td>74%</td>
+    </tr>
+    <tr>
+      <td>Negative</td>
+      <td>800</td>
+      <td>7129</td>
+      <td>90%</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="next-steps">Next Steps</h2>
+<p>When I revisit this will look at:</p>
+
+<ul>
+  <li>training on equities within the same industry and other groupings</li>
+  <li>evaluating the accuracy of each equity against the cross-trained model</li>
+  <li>potentially drop the lowest accuracy analysts to build a better combined score</li>
+  <li>adding various market signals to improve accuracy</li>
+</ul>
+
+<h2 id="addendum">Addendum</h2>
+<p>Note that the above analysis overstates analyst accuracy in that it allows analysts to adjust their rating after a stock 
+has started a downward (upward) move.  The approach I took with the analysis was to evaluate the forward 20 day return 
+for each day relative to the combined analyst score.   Here is a scenario that would show lag in analysts predictions
+but still allow them to achieve a high score in the above analysis:</p>
+
+<ol>
+  <li>analysts combined score shows a buy</li>
+  <li>stock drops significantly over the course of a week</li>
+  <li>analysts adjust to lower score (sell or underweight)</li>
+  <li>stock continues to drop for the next couple of months</li>
+</ol>
+
+<p>Only 1 week out of 9 weeks would show bad accuracy in the above scenario.  Meanwhile, you might have purchased the 
+stock at the beginning of week 1 based on analyst’s positive scoring.</p>
+:ET

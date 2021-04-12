@@ -1,0 +1,210 @@
+I"�;<p>Most signals I deal with are noisy, reflecting noise of underlying prices, volume, vol of vol, etc.  Many traditional
+strategies built on such indicators might either:</p>
+
+<ul>
+  <li>use signal to scale into position
+    <ul>
+      <li>such approaches have to deal with noise to avoid thrashing, adjusting position up and down with noise</li>
+    </ul>
+  </li>
+  <li>consider specific levels of the signal to signify a state
+    <ul>
+      <li>for example: long {+1}, short {-1}, neutral {0}</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Pictured below is an example of a noisy signal that detects downward momentum.  The goal is to signal 1 when in
+downward momentum and 0 when not.  A <strong>simplistic approach</strong> might be to <strong>set a threshold</strong> and map
+the raw signal to 1 when above threshold andto 0 when below the threshold.</p>
+
+<p><img src="/assets/2020-09-01/noise.png" width="800" height="550" /></p>
+
+<p>In the above scenario, there is no threshold level that would avoid unwanted oscillation between 0 and 1 states. 
+For example, with the threshold set at 0.75 there are 2 incursions below the threshold (which would be mapped to state 0).  Trying
+other thresholds, such as 0.5, avoiding noise during the momentum period, but would encounter noise thereafter.</p>
+
+<p>The denoised signal (pictured as the green line), makes use of a hidden markov model (HMM).  Have used this for the past
+10 years or so, so thought to share the approach here.</p>
+
+<h2 id="a-solution">A Solution</h2>
+<p>In the application above we are interested in assigning states (or levels) +1 and 0, removing the noise from our signal.
+Let’s consider a common scenario where we want to assign { Short, Neutral, Long } states to a noisy signal.</p>
+
+<h3 id="state-system">State System</h3>
+<p>To do this can construct a 3 state system and assign transition probabilities, for example probability of transitioning from
+Long to Short, Neutral to Long, remaining in the same state, etc.</p>
+
+<p><img src="/assets/2020-09-01/state-system.png" width="700" height="400" /></p>
+
+<p>One can think of the same state probability as defining the “stickiness” to a given state, and resistance to noise that 
+might otherwise cause us to transition to another state.  For example if we assign a high probability to \(P_{short \rightarrow short}\),
+and a corresponding lower probability to transitions out of that state, we will be able to ride more noise without transitioning
+to another state.</p>
+
+<p>The state system above gives us a transition matrix:</p>
+
+\[\begin{bmatrix}
+P_{short \rightarrow short} &amp; P_{short \rightarrow neutral} &amp; P_{short \rightarrow long}\\ 
+P_{neutral \rightarrow short} &amp; P_{neutral \rightarrow neutral} &amp; P_{neutral \rightarrow long}\\ 
+P_{long \rightarrow short} &amp; P_{long \rightarrow neutral} &amp; P_{long \rightarrow long} 
+\end{bmatrix}\]
+
+<p>Note that the probabilities must sum to 1 across each row, i.e. for transition
+matrix M: \(\sum_j M_{i,j} = 1\).  If one wants to <strong>define the denoising model in terms of “stickiness” to same state</strong>, then can determine the probabilities
+for the 3-state transition matrix as:</p>
+
+\[\begin{bmatrix}
+P_{short \rightarrow short} &amp; \frac{1}{2} (1 - P_{short \rightarrow short}) &amp; \frac{1}{2} (1 - P_{short \rightarrow short})\\ 
+\frac{1}{2} (1 - P_{neutral \rightarrow neutral}) &amp; P_{neutral \rightarrow neutral} &amp; \frac{1}{2} (1 - P_{neutral \rightarrow neutral})\\ 
+\frac{1}{2} (1 - P_{long \rightarrow long}) &amp; \frac{1}{2} (1 - P_{long \rightarrow long}) &amp; P_{long \rightarrow long} 
+\end{bmatrix}\]
+
+<p>and for a 2-state matrix as:</p>
+
+\[\begin{bmatrix}
+P_{s_0 \rightarrow s_0} &amp; (1 - P_{s_0 \rightarrow s_0}) \\ 
+(1 - P_{s_1 \rightarrow s_1}) &amp; P_{s_1 \rightarrow s_1}
+\end{bmatrix}\]
+
+<h3 id="observation-distributions">Observation Distributions</h3>
+<p>Next we need to consider how the <strong>(noisy) signal is mapped to these states</strong>.  The approach taken by HMM is to
+introduce an <strong>observation distributions</strong> \(p(y \vert x)\), where \(y\) are our observations (the raw signal in this
+case) and \(x\) is the particular “hidden state”.</p>
+
+<p>Our next step is to <strong>design an observation distribution for each state</strong>, providing separation such that the likelihood of \(p(y \vert x = s_i)\)
+versus \(p(y \vert x = s_j)\) are significantly different for signal values that should be mapped to state \(s_i\) versus state \(s_j\) 
+respectively.  In the example below I map a noisy signal into 2 states { long, short }, using normal distributions:</p>
+
+<ul>
+  <li>long state: \(p(y \vert x = long) = N(+0.65, \sigma)\) or</li>
+  <li>short state \(p(y \vert x = short) = N(-0.65, \sigma)\).</li>
+</ul>
+
+<p>See below:</p>
+
+<p><img src="/assets/2020-09-01/observation-dist.png" width="750" height="550" /></p>
+
+<h3 id="tying-it-together-with-hmm">Tying it together with HMM</h3>
+<p>The observation distribution provides us with \(p(y \vert x = s)\), but what we are looking for is 
+\(p(x = s \vert y_n, y_{n-1}, .. y_0)\), i.e. the probability of being on state “s” given the observation 
+sequence (our noisy signal), \(y_n, y_{n-1}, .. y_0\).</p>
+
+<p>The HMM model ties the transition probability matrix \(M\), our observation probability distributions \(p(y \vert x = s)\), and
+state probability priors \({ \pi_{s = short}, \pi_{s = neutral}, \pi_{s = long} }\) into a <strong>model which determines the most
+likely state as we proceed along the sequence of observations</strong>. (The priors are typically determined as the frequency of each state such as 1/3, 1/3, 1/3).</p>
+
+<p>As concisely <a href="https://en.wikipedia.org/wiki/Forward_algorithm">described here</a>, at each time step in the sequence we
+compute the likelihood of being on state \(x_t = s\) as:</p>
+
+\[\alpha_t(x_t) = p(y_t \vert x_t) \sum_{x_{t-1}} p(x_t | x_{t-1}) \alpha_{t-1}(x_{t-1})\]
+
+<p>where \(p(x_t \vert x_{t-1})\) is our transition probability across all possible combinations of states as defined by \(M\) and 
+\(p(y_t \vert x_t)\) is our observation distribution for given state at \(x_t\).  For t = 0, \(\alpha_t(x_t)\) is defined in terms
+ of the prior distributions for each state as \(p(y_0 \vert x_0 = s) \pi_s\)</p>
+
+<p>The above is decomposed into a dynamic programming problem.  The algorithm in pseudo code is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># initialize time step 0 using state priors and observation dist p(y | x = s)
+</span><span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
+    <span class="n">alpha</span><span class="p">[</span><span class="n">t</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">si</span><span class="p">]</span> <span class="o">=</span> <span class="n">pi</span><span class="p">[</span><span class="n">si</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">|</span> <span class="n">x</span> <span class="o">=</span> <span class="n">si</span><span class="p">)</span>
+
+<span class="c1"># determine alpha for t = 1 .. n
+</span><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="mi">1</span> <span class="p">..</span> <span class="n">n</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">sj</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
+        <span class="n">alpha</span><span class="p">[</span><span class="n">t</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">alpha</span><span class="p">[</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">si</span><span class="p">]</span> <span class="o">*</span> <span class="n">M</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">states</span><span class="p">])</span> <span class="o">*</span> <span class="n">p</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">|</span> <span class="n">x</span> <span class="o">=</span> <span class="n">sj</span><span class="p">)</span>     
+
+<span class="c1"># determine current state at time t
+</span><span class="k">return</span> <span class="n">argmax</span><span class="p">(</span><span class="n">alpha</span><span class="p">[</span><span class="n">t</span><span class="p">,</span><span class="n">si</span><span class="p">]</span> <span class="n">over</span> <span class="n">si</span><span class="p">)</span>
+
+</code></pre></div></div>
+<p>Note that the above would be restated in log likelihood space to avoid underflow and avoid having to compute the
+distribution CDFs.</p>
+
+<h3 id="filtering-summary">Filtering (summary)</h3>
+<p>In summary, the approach to mapping a Long / Short signal or alternative configuration of states is to:</p>
+
+<ul>
+  <li>define the observation distributions in a way that separates states in the signal domain</li>
+  <li>define a transiton probability matrix controlling “stickiness” (amount of state transition noise)</li>
+  <li>define priors (typically the frequency one expects for each state)</li>
+  <li>use the forward viterbi model to determine the state sequence \(x_{t:0}\) as a function of observed raw signal 
+sequence \(y_{t:0}\)</li>
+</ul>
+
+<p>Here is an example (which I did not attempt to optimise):</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">tseries_patterns.ml.hmm</span> <span class="kn">import</span> <span class="n">HMM2State</span>
+<span class="kn">from</span> <span class="nn">tseries_patterns.data</span> <span class="kn">import</span> <span class="n">YahooData</span>
+<span class="kn">from</span> <span class="nn">talib</span> <span class="kn">import</span> <span class="n">ADX</span>
+
+
+<span class="c1"># get price bars
+</span><span class="n">aapl</span> <span class="o">=</span> <span class="n">YahooData</span><span class="p">.</span><span class="n">getOHLC</span><span class="p">(</span><span class="s">"AAPL"</span><span class="p">,</span> <span class="n">Tstart</span><span class="o">=</span><span class="s">'2019-1-1'</span><span class="p">)</span>
+
+<span class="c1"># compute our raw signal (not a very good one, FYI)
+</span><span class="n">rawsignal</span> <span class="o">=</span> <span class="n">ADX</span><span class="p">(</span><span class="n">aapl</span><span class="p">.</span><span class="n">high</span><span class="p">,</span> <span class="n">aapl</span><span class="p">.</span><span class="n">low</span><span class="p">,</span> <span class="n">aapl</span><span class="p">.</span><span class="n">close</span><span class="p">,</span> <span class="n">timeperiod</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="c1"># denoise signal
+</span><span class="n">hmm</span> <span class="o">=</span> <span class="n">HMM2State</span> <span class="p">(</span><span class="n">means</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="n">ss_prob</span> <span class="o">=</span> <span class="mf">0.9999</span><span class="p">)</span>
+<span class="c1">## predict 0 and 1 states, rescaling to 10, 40 to align with scale of ADX
+</span><span class="n">denoised</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">+</span> <span class="n">hmm</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">rawsignal</span><span class="p">.</span><span class="n">dropna</span><span class="p">())</span> <span class="o">*</span> <span class="mi">30</span>
+
+<span class="c1"># plot
+</span><span class="p">...</span>
+</code></pre></div></div>
+
+<p>The above <code class="language-plaintext highlighter-rouge">HMM2State</code> class explicitly defines:</p>
+
+<ul>
+  <li>the transition probability matrix:
+    <ul>
+      <li>\(i = j \rightarrow 0.9999\) and</li>
+      <li>\(i \neq j \rightarrow 1 - 0.9999\).</li>
+    </ul>
+  </li>
+  <li>the observation distributions as:
+    <ul>
+      <li>\(S_0 = N(\mu = 10, \sigma_{default})\) and</li>
+      <li>\(S_1 = N(\mu = 40, \sigma_{default})\).</li>
+    </ul>
+  </li>
+  <li>the prior probabilities as \(\pi_i = \frac{1}{2}\)</li>
+</ul>
+
+<p>The forward viterbi method is then used to determine the states in the <code class="language-plaintext highlighter-rouge">hmm.predict()</code> call.   <code class="language-plaintext highlighter-rouge">HMM2State</code>  is a 
+simple wrapper around the underlying scikit hmmlearn implementation that defines the model, bypassing the <code class="language-plaintext highlighter-rouge">fit()</code>
+stage.</p>
+
+<p><img src="/assets/2020-09-01/ADX-denoised.png" width="800" height="550" /></p>
+
+<h2 id="alternatives-that-dont-work-well">Alternatives (that don’t work well)</h2>
+<p>A typical approach with HMM involves using the <strong>forward-backward algorithm</strong> to automatically determine:</p>
+
+<ul>
+  <li>transition probabilities</li>
+  <li>observation distributions</li>
+  <li>priors</li>
+</ul>
+
+<p>For example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">hmmlearn.hmm</span> <span class="kn">import</span> <span class="n">GaussianHMM</span>
+
+<span class="n">rawsignal</span> <span class="o">=</span> <span class="p">...</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">GaussianHMM</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">model</span><span class="p">.</span><span class="n">fit</span> <span class="p">(</span><span class="n">rawsignal</span><span class="p">)</span>
+
+<span class="n">states</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">rawsignal</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>While this will find 3 states, is unlikely not to have the desired filtering effect:</p>
+
+<ul>
+  <li>the 3 observation distributions may be skewed by biases in the raw signal</li>
+  <li>the transition probabilities are unlikely to represent the desired “stickness” and hence denoising desired.</li>
+</ul>
+
+<p>In general you will achieve better results by defining the observation distributions and transition probability matrix
+yourself.</p>
+:ET

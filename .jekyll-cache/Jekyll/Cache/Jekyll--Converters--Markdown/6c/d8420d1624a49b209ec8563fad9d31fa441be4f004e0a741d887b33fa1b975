@@ -1,0 +1,67 @@
+I"�<p>It seems like every other month there is a new bitcoin exchange.  For the purposes of trading research &amp; backtesting it is important to have historical data across the most liquid exchanges.  My minimal list is:</p>
+
+<ol>
+  <li><strong>BTC/USD</strong>
+    <ol>
+      <li>bitfinex (15%)</li>
+      <li>bitstamp (5%)</li>
+      <li>coinbase (new, but likely to garner market share)</li>
+    </ol>
+  </li>
+  <li><strong>BTC/CNY</strong>
+    <ol>
+      <li>okcoin (28%)</li>
+      <li>btcn (44%)</li>
+    </ol>
+  </li>
+</ol>
+
+<p>(percentage volume sourced from <a href="http://bitcoincharts.com/charts/volumepie/">http://bitcoincharts.com/charts/volumepie/</a>).   Each of these exchanges not only has a unique protocol but also unique semantics that need to be normalized.</p>
+
+<p>For example, bitstamp produces the following sequence of transactions for a partial sweep of the orderbook.  For example, here is a partial sweep, where a BUY 14 @ 250.20 was placed, crossing 4 orders on the sell side of the book:</p>
+
+<p><img src="/assets/2015-01-28/screen-shot-2015-01-27-at-7-22-17-pm.png" alt="Orderbook sweep" /></p>
+
+<p>In Bitstamp, would see the following transactions:</p>
+
+<ol>
+  <li><strong>NEW BUY 14 @ 250.20, id: 43</strong></li>
+  <li>DEL  SELL 1.2 @ 250.05, id: 23</li>
+  <li><strong>UPDATE BUY 12.8 @ 250.20: id, 43</strong>  (updating the size of the aggressing order)</li>
+  <li>TRADED 1.2 @ 250.05</li>
+  <li>DEL SELL 0.3 @ 250.10, id: 24</li>
+  <li><strong>UPDATE BUY 12.5 @ 250.20: id, 43</strong>  (updating the size of the aggressing order)</li>
+  <li>TRADED 0.3 @ 250.10</li>
+  <li>…</li>
+  <li>TRADED 8 @ 250.20</li>
+  <li>DEL BUY 0 @ 250.20, id: 43</li>
+</ol>
+
+<p>The oddity here is that many market data streams &amp; orderbook implementations will just transact the crossing in 1 go, so one will usually only see:  DEL, TRADE, DEL, TRADE, DEL TRADE (and deletes may not be sequenced between the trades either).  Where it gets odd is in replaying this data in that a typical OB implementation will sweep the book on seeing the order right away without intermediate UPDATE states.   In such an implementation, seeing UPDATE to non-0 size after crossing and deleting the order completely might be seen as an error or a missed NEW, since the order is no longer on record in the OB.</p>
+
+<p>Another note is that Bitstamp does not indicate the side of the trade (i.e. which side aggressed), though this is uncommon in markets such as equities or FX, Bitcoin exchanges do provide this.   Fortunately because the initial crossing order is provided can use a bipartite graph (in the presence of multiple crossing orders) to determine the most likely aggressing order and therefore the trade sign.</p>
+
+<h2 id="clearing-house-for-data">Clearing House for Data</h2>
+
+<p>I would like to build and/or participate in the following:</p>
+
+<ol>
+  <li>build robust normalized L3 or L2 -&gt; L3 (implied) orderbook live feeds
+    <ul>
+      <li>used to collect data into a simple binary tickdb format</li>
+      <li>also can be reused as connectivity handlers for live trading</li>
+    </ul>
+  </li>
+  <li>normalize transaction stream (such as issues in the example above)</li>
+  <li>identify buy/sell designation on trades based on exchange specific semantics</li>
+  <li>in addition to exchange specific tick streams / dbs, create a consolidated OB stream:
+    <ul>
+      <li>synchronized market state to nearest ms</li>
+      <li>normalized orderid space so that order ids do not collide and can identify order source</li>
+    </ul>
+  </li>
+  <li>simple means to generate bars or filter for trades from the L3 data</li>
+</ol>
+
+<p>It takes some amount of time to develop &amp; fairly small amount of money to run in terms of hosting.   Assuming there are not EULA issues in doing so, could perhaps provide data as a non-profit sort of arrangement.   Not looking to build a for-profit company around this rather a collective where can give something back to the community and perhaps be able to make use of donated resources and/or data.</p>
+:ET

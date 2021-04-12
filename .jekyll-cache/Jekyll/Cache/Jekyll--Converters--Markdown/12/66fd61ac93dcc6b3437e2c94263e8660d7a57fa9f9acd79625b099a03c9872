@@ -1,0 +1,85 @@
+I"m<p>There are times when need to label a time series, identifying periods of momentum, trend, mean-reversion, etc.
+Directionaly labeling timeseries has a wide variety of applications:</p>
+
+<ul>
+  <li>labels can be used for supervised learning</li>
+  <li>analysis of microstructure around larger price moves</li>
+  <li>conditional analysis using label (pattern) sequences</li>
+  <li>testing online signals versus idealized ex-post labeled trend / momentum or MR targets</li>
+</ul>
+
+<h2 id="the-problem">The Problem</h2>
+<p>The naive approach to labeling might just note the sign of individual returns in a series.  However, most bars or samples 
+in a timeseries present a non-zero return, though may be noise for a given trading target.</p>
+
+<p>Another approach, often used, is to apply smoothing to the price series or vwap, removing noise (for example with a penalized spline,
+smoothing kalman filter, lowess spline, etc).  Traditional smoothing algorithms do not adapt smoothing to slow or fast regimes, and
+therefore fail to capture:</p>
+
+<ul>
+  <li>high degree of smoothing: fails to capture fast moves OR</li>
+  <li>low degree of smoothing: captures fast moves but does not mask high frequency low amplitude noise</li>
+</ul>
+
+<h2 id="top-down-approach">Top-Down Approach</h2>
+<p>From a trading perspective I wanted an algorithm that detected moves with:</p>
+
+<ul>
+  <li>amplitude &gt; some minimum return (for example in intraday FX, 15bps minimum)</li>
+  <li>noise &lt; some maximum</li>
+</ul>
+
+<p>A few years ago developed an algorithm to label momentum and trend patterns in intra-day or daily price data based on 
+the above two criteria. In spite of its simplicity, has performed quite well as compared to a number of more complicated 
+statistical approaches have developed.  I have implemented this in my own proprietary libraries, but thought I
+ would contribute more broadly for a change of pace - launched a new python and R package implementing the approach here:</p>
+
+<ul>
+  <li>python version:
+    <ul>
+      <li>https://github.com/tr8dr/tseries-patterns</li>
+    </ul>
+  </li>
+  <li>R version:
+    <ul>
+      <li>https://github.com/tr8dr/r-tseries-patterns</li>
+    </ul>
+  </li>
+</ul>
+
+<p>I have moved to using python primarily for research purposes, so will not be adjusting the R package often.</p>
+
+<h2 id="examples">Examples</h2>
+<p>Below are some examples of the same (intra-day) data series, parameterized for more noise, less noise, higher or lower minimum amplitudes.</p>
+
+<h3 id="labeling-minamp--20bps-tinactive--5mins">Labeling (minamp = 20bps, Tinactive = 5mins)</h3>
+<p>Note that this was performed on 30sec sampled bars, so Tinactive = 10, corresponds to 10 30sec bars = 5mins</p>
+<pre><code class="language-Python">labeler = AmplitudeBasedLabeler (minamp = 20, Tinactive = 10)
+labels = labeler.label (df)
+labeler.plot()
+</code></pre>
+<p><img src="/assets/2020-07-11/labeling.20.5.png" alt="Graph of labels" /></p>
+
+<h3 id="labeling-minamp--20bps-tinactive--15mins">Labeling (minamp = 20bps, Tinactive = 15mins)</h3>
+<p>Note that this was performed on 30sec sampled bars, so Tinactive = 30, corresponds to 15mins</p>
+<pre><code class="language-Python">labeler = AmplitudeBasedLabeler (minamp = 20, Tinactive = 30)
+labels = labeler.label (df)
+labeler.plot()
+</code></pre>
+<p><img src="/assets/2020-07-11/labeling.20.15.png" alt="Graph of labels" /></p>
+
+<h2 id="further-enhancements">Further Enhancements</h2>
+<p>The labeler does a good job of finding momentum / trend extents, however does not have a formal view of noise, other
+than a notion of price inactivity, where no new highs (lows) are achieved within a broader move.  The identified 
+sections can be further filtered, evaluating noise in a variety of ways:</p>
+
+<ol>
+  <li>Traditional volatility measures (however these may not capture what a trader is looking for)</li>
+  <li>Wavelet decomposition of price during the move, evaluating the power spectrum</li>
+  <li>Finding a best-fit, 0 inflection spline for the move and determining ratio of RSS to slope (for example)</li>
+  <li>…</li>
+</ol>
+
+<p>I have implemented and use a variety of these in determining whether to use a move conditionally in trading.</p>
+
+:ET

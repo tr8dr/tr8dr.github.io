@@ -1,0 +1,78 @@
+I"W<p>It has been almost a year since my last post.  I have been far too busy getting a new trading desk up and running.   I  thought to discuss money management, since am revisiting right now.</p>
+
+<h2 id="overview">Overview</h2>
+
+<p>It is easy to think that trading signal is the most important aspect of a trading strategy, but money management (and execution) can be even more important.   Loosely defined, money management is a mechanism for position-level risk management.  The mechanism attempts to regulate, accomplishing a number of things:</p>
+
+<ol>
+  <li>
+    <p>ride out a profitable signal as long as there is continued profit potential
+    - close out a profitable position when the p&amp;l is drifting sideways
+    - close out a profitable position, alternatively when there is a drawdown
+    - otherwise, allow the position to continue to profit, even through transient negative noise</p>
+  </li>
+  <li>
+    <p>close out our losing positions as quickly as possible
+    - close position once we have a view that it is unlikely to be profitable</p>
+  </li>
+  <li>
+    <p>close out strategy if seems unstable
+    - for example keeps hitting stop-loss
+    - risk measures indicative of unstable market situation for strategy</p>
+  </li>
+</ol>
+
+<p>A desirable feature of a money manager is that when pairing the money manager and signal together, we have a return distribution with positive skew and very limited negative tails.   We can even have a signal with &lt; 50% wins, but because of the generated bias in + returns / - returns, have an overall positive equity curve.   Of course I would advocate for much a much higher win ratio than 50% ;)</p>
+
+<h2 id="signal-position">Signal → Position</h2>
+
+<p>I take the approach of having a trading signal that scales between [-1,1] or [0,1] on a continuous basis.   In my trading systems the money manager not only works as a risk manager, but also decides how to scale the signal into a desired position.</p>
+
+<p>For example, if our maximum position is $5 million, we might scale our desired position from 0 to $5 million (if the signal reaches full power at 1).  The 0 or close to 0 level would indicate being out of market, 0.5 being at 1/2 strength or 2.5 million in.   Here is an example signal from 0 to 1:</p>
+
+<p><img src="/assets/2012-09-29/screen-shot-2012-09-29-at-4-29-00-pm.png" alt="Signel" /></p>
+
+<p>Trading signals can be noisy, though we do our best to provide smooth signals.   Without regulation of how we map the signal to position size, the up and down dips in the signal would imply thrashing in and out of position, which would be costly.</p>
+
+<p>Hence, we should try to enforce direction monotonicity, so as to avoid thrashing.</p>
+
+<h2 id="types-of-stop-loss">Types of stop-loss</h2>
+
+<p>There are a number of stop-loss types we should consider:</p>
+
+<ol>
+  <li>stop-loss:
+    <ul>
+      <li>stop when (smoothed) equity curve has reached a negative return threshold</li>
+    </ul>
+  </li>
+  <li>stop-profit:
+    <ul>
+      <li>exit an up-to-current profitable trade, but one that has lost some % from the high</li>
+    </ul>
+  </li>
+  <li>stop-drift
+    <ul>
+      <li>a time and slope based stop that closes out a position whose equity curve is drifting more-or-less sideways for a significant period</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="risk-reentry-avoidance">Risk Reentry Avoidance</h2>
+
+<p>On a stop-loss not only want to close the position, but also have to “back away” from the signal, such that we do not immediately get back into an undesirable situation.   Depending on why we exited the position, we may want to:</p>
+
+<ol>
+  <li>disable market entry until the signal has gone to zero</li>
+  <li>impose a time penalty</li>
+  <li>impose a market reentry restriction (wait for the market regime to reach a certain stage)</li>
+</ol>
+
+<h2 id="a-fsm">A FSM</h2>
+
+<p>Here is a finite state machine that illustrates a possible state system guiding position scaling and money management:</p>
+
+<p><img src="/assets/2012-09-29/screen-shot-2012-09-29-at-4-49-18-pm.png" alt="FSM" />]</p>
+
+<p>The state system expresses some of the above money management features.   To make it effective, one needs to be clever about deciding on whether a negative movement is a sign to get out or a transient movement.   One can use a combination of signal, smoothed series, and aspects of order book and trade data to have a better read on this.</p>
+:ET

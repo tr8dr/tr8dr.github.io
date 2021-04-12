@@ -1,0 +1,188 @@
+I"�D<p>As mentioned in the prior discussion <a href="https://tr8dr.github.io/FeatureSelection/">feature selection (1/3)</a>, of primary interest is understanding the contribution of each feature in \(\vec{x}\) to the
+outcome or class labeling function \(f(\vec{x})\).  One way to examine this is to understand how the distributions:</p>
+
+<ul>
+  <li>\(p(x_f)\), the probability distribution of feature f (without regard to label)</li>
+  <li>\(p(x_f\, \vert\, f(x) = y)\), the feature distribution conditional on class label</li>
+</ul>
+
+<p>differ from each other.  For a feature with no relationship to the outcome \(p(x_f)\) and \(p(x_f\, \vert\, f(x) = y)\)
+will <strong>not be substantially different distributions</strong>.  Whereas if \(x_f\) has substantial influence on \(f(\vec{x})\), 
+the conditional distribution \(p(x_f\, \vert\, f(x) = y)\) will be substantially different from \(p(x_f)\).</p>
+
+<h2 id="illustrative-example">Illustrative Example</h2>
+<p>Lets assume that we have 2-dimensional features  \(\vec{x} = [ x_0, x_1 ]^T\), where the model we are looking to learn
+is dependent on the first feature \(x_0\), mapping as \(f(\vec{x}) = \begin{cases}
+ 0 &amp; \text{ if } x_0 &lt; 1.0 \\ 
+ 1 &amp; \text{ if } x_0 \ge 1.0 
+\end{cases}\)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+
+<span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span>
+
+<span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">x0</span><span class="p">),</span>
+<span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">x0</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]).</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s">"$p(x_0)$ vs $p(x_0 \, | \, f(x) = 1)$"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Lets compare the distributions \(p(x_0)\) and \(p(x_0\, \vert\, f(x) = 1)\):</p>
+
+<p><img src="/assets/2020-08-14/px0.png" width="550" height="400" /></p>
+
+<p>We can clearly see (above) that feature 0 has a strong relationship with the function f(x) given the significant difference
+between the prior and conditional distributions.</p>
+
+<p>However, in the next figure (below), feature 1 shows no impact on the outcome of f(x); this
+is evident by the lack of difference between the prior and conditional distributions for feature \(x_1\):</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span>
+<span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">x1</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]).</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s">"$p(x_1)$ vs $p(x_1 \, | \, f(x) = 1)$"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/assets/2020-08-14/px1.png" width="550" height="400" /></p>
+
+<h2 id="implementation-approach">Implementation Approach</h2>
+<p>To determine which features have impact on f(x), we can do the following:</p>
+
+<ul>
+  <li>use a distance measure that allows us to compare distributions
+    <ul>
+      <li>for example Jensen-Shannon, Wasserstein (Earth Mover Distance), …</li>
+    </ul>
+  </li>
+  <li>normalize distributions into the same space so that distribution distances can be compared
+    <ul>
+      <li>evaluate CDF of distributions on [0,1] instead of separate native coordinate spaces</li>
+    </ul>
+  </li>
+  <li>deal with correlation between features
+    <ul>
+      <li>2 features with significant impact on f(x) may also be highly correlated</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Here are some distance measures we could use in determining the difference between the prior and conditional 
+distributions:</p>
+
+<ul>
+  <li><strong>Jensen-Shannon Divergence</strong>
+    <ul>
+      <li>Formulated along the lines of information entropy, however, where the log probability term is the ratio of
+probabilities between distributions.  This is a symmetric adjustment to <strong>Kullback-Leibler Divergence</strong>.</li>
+      <li>The computational complexity for univariate distributions is O(n) and O(n^k) for multivariate.</li>
+    </ul>
+  </li>
+  <li><strong>Wasserstein</strong> (or EMD)
+    <ul>
+      <li>A more flexible divergence metric allowing comparison of distributions even when their supports do not intersect</li>
+      <li>For the case of univariate empirical distributions has complexity O(n log n) in the number of samples.  For multivariate
+the complexity is O(n^3), though there are some approximate methods linear in time.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>At some point will do an analysis to compare how the two perform.  For the moment forcusing on Wasserstein distance.</p>
+
+<p>The 1st order Wasserstein distance is known also as the “Earth Mover Distance” (EMD).  The approach determines the
+“amount of work” required to move mass
+from one distribution to another such that they are equivalent.  This amount of work: sum of mass moved over a distance
+is the EMD metric.  In the diagram below we have 2 different distributions with unequal mass / position of mass.  The
+EMD algorithm determines the minimal flow (distance x mass) required to be moved to equalize the distributions:</p>
+
+<p><img src="/assets/2020-08-14/EMD.png" width="650" height="500" /></p>
+
+<p>The amount of mass redistribution (and distance travelled) is a good representation as to how different any two distributions are,
+ and is applicable to both univariate and multivariate distributions.</p>
+
+<h3 id="greedy-algorithm-1">Greedy algorithm 1</h3>
+<p>The algorithm is as follows:</p>
+
+<ol>
+  <li>rank features by degree of separation between \(p(x_i)\) and \(p(x_i\, \vert\, f(x) = c)\), for each class c</li>
+  <li>select highest ranked feature to initialize list of features</li>
+  <li>iteratively select K-1 features as follows:
+    <ol>
+      <li>select next highest ranked feature</li>
+      <li>evaluate correlation of feature versus already selected features</li>
+      <li>if maximum correlation &gt; threshold (say 0.7), discard this feature</li>
+    </ol>
+  </li>
+  <li>once K features have been selected, done</li>
+</ol>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">select_by_EMD</span> <span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">pd</span><span class="p">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">topk</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span> <span class="n">maxcorr</span> <span class="o">=</span> <span class="mf">0.70</span><span class="p">):</span>    
+    <span class="n">names</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">columns</span><span class="p">.</span><span class="n">values</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">names</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">names</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">feature</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">xprior</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span>
+
+        <span class="c1"># we assume binary classes in this case    
+</span>        <span class="n">xcond0</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">].</span><span class="n">loc</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">xcond1</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">].</span><span class="n">loc</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">w0</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">0</span><span class="p">).</span><span class="nb">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">labels</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">w1</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">).</span><span class="nb">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">labels</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">d0</span> <span class="o">=</span> <span class="n">wasserstein_distance</span><span class="p">(</span><span class="n">xprior</span><span class="p">,</span> <span class="n">xcond0</span><span class="p">)</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">wasserstein_distance</span><span class="p">(</span><span class="n">xprior</span><span class="p">,</span> <span class="n">xcond1</span><span class="p">)</span>
+        <span class="n">scores</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">w0</span> <span class="o">*</span> <span class="n">d0</span> <span class="o">+</span> <span class="n">w1</span> <span class="o">*</span> <span class="n">d1</span>
+
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">scores</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+    <span class="n">importance</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+
+    <span class="n">selected_features</span> <span class="o">=</span> <span class="p">[</span><span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">selected_importance</span> <span class="o">=</span> <span class="p">[</span><span class="n">importance</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">names</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">feature</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span>
+        <span class="n">corr</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">feature</span><span class="p">]</span> <span class="o">+</span> <span class="n">selected_features</span><span class="p">].</span><span class="n">corr</span><span class="p">().</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="mi">0</span><span class="p">].</span><span class="nb">max</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">corr</span> <span class="o">&lt;=</span> <span class="n">maxcorr</span><span class="p">:</span>
+            <span class="n">selected_features</span><span class="p">.</span><span class="n">append</span> <span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+            <span class="n">selected_importance</span><span class="p">.</span><span class="n">append</span> <span class="p">(</span><span class="n">importance</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_features</span><span class="p">)</span> <span class="o">==</span> <span class="n">topk</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s">"order"</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected_features</span><span class="p">)),</span>
+        <span class="s">"feature"</span><span class="p">:</span> <span class="n">selected_features</span><span class="p">,</span>
+        <span class="s">"importance"</span><span class="p">:</span> <span class="n">selected_importance</span> <span class="p">}).</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># select the top 10 features from feature `xtrain` against labels `ytrain`
+</span><span class="n">selected</span> <span class="o">=</span> <span class="n">select</span> <span class="p">(</span><span class="n">xtrain</span><span class="p">,</span> <span class="n">ytrain</span><span class="p">,</span> <span class="n">topk</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="improvements">Improvements</h2>
+<ul>
+  <li>look at 2 or 3 dimensional conditional distributions such as \(p (x_i x_j x_k \, \vert \, f(x) = c)\)
+    <ul>
+      <li>This would allow us to determine subspaces that are jointly explanatory where a single feature may be less so.  I 
+would have to think carefully as to how to compare these.</li>
+    </ul>
+  </li>
+  <li>Rationalize correlation between variables
+    <ul>
+      <li>how do distances interact for highly correlated variables; can we factor out overlapping sensitivities?</li>
+    </ul>
+  </li>
+</ul>
+
+<p>For now have use a heuristic algorithm to deal with the correlation overlap, and also avoided the sub-space considerations.</p>
+
+<h2 id="conclusions">Conclusions</h2>
+<p>In this post I did not compare the “goodness-of-rank: of this method versus other methods (this is quite hard to do objectively).  However, 
+in practice have found this method:</p>
+
+<ul>
+  <li>at least as good or better than Random-Forest Gini based feature selection</li>
+  <li>has a sound information-geometric basis</li>
+  <li>provides good intuition as to how / why features were selected</li>
+</ul>
+
+:ET

@@ -1,0 +1,53 @@
+I"@<p>I have been thinking about the recent institutional buying that has propelled the price of bitcoin to stratospheric levels; in 
+particular considering how one might detect some of this interest early.  Bitcoin and crypto, in general, is quite interesting 
+in that due to the decentralized ledger, there is more transparency in this market than any other financial market.</p>
+
+<p>The majority of transactions, at this point, occur off chain on exchanges.   However, if one wanted to buy into a large
+position, would first try to locate blocks (large size) in the OTC market.  Miners, for example, tend to be natural
+sellers, as accumulate long positions and need to offload at least some of this position to fund operations.  By locating
+coin in the OTC market can potentially get into a portion of the position with minimal impact on lit markets (exchanges).</p>
+
+<p>The hypothesis, then, is that the market will first show signal in terms of # or size of transactions on the chain before it 
+manifests in terms of price.  Big buyers will resort to the exchange once they have exhausted OTC opportunities.  Once 
+exchange buying commences, the price will accelerate.</p>
+
+<p>Bitcoin nodes have the notion of “mempool”, which is basically a cache of pending transactions.  This pool can be sampled
+periodically to get a sense of # of transactions pending, # of transactions by fee level, etc.</p>
+
+<h2 id="observations">Observations</h2>
+<p>I pulled in 3 years of <strong>mempool pending transaction</strong> data (with ~2 observations per day, though would have prefered more 
+granular sampling).  The raw data looked like this:</p>
+
+<p><img src="/assets/2020-12-19/raw.png" width="800" height="600" /></p>
+
+<p>Rescaling the data and applying a hawkes process:</p>
+
+<p><img src="/assets/2020-12-19/3Y.png" width="800" height="600" /></p>
+
+<p>There seems to be a relationship between # of transactions and forward price move.  Of course transaction count is not
+directional.  However based on the history I have seen in Bitcoin, large transaction interest seems to presage large upward 
+movements in price.</p>
+
+<p>Here is a zoom in on the 2019 move:</p>
+
+<p><img src="/assets/2020-12-19/2019.png" width="800" height="600" /></p>
+
+<h2 id="tentative-conclusions">Tentative Conclusions</h2>
+<ol>
+  <li>There seems to be some relationship between block transaction count and forward price move</li>
+  <li>Too short of a history to have a high degree of statistical confidence.</li>
+  <li>Narrative seems makes sense, however</li>
+</ol>
+
+<p>I have not put all that much time into longer-term signals in crypto, but am sure there are more that can be employed.
+A friend of mine pointed me to the site: <a href="https://glassnode.com/">glassnode</a>, which has a number of different metrics
+which may be useful.</p>
+
+<p>Would also note that transaction count (as of 2020-12-18) is signalling high currently, so may point to continued price 
+appreciation beyond current levels - we shall see.</p>
+
+<h2 id="addendum">Addendum</h2>
+<p>(2020-12-19) The transaction spike that started on Dec 16th was descending from the high on Dec 18th.  Bitcoin continued upward 5% or so and then
+went sideways post Dec 19th.  Here is a good site for observing the transaction activity <a href="https://jochen-hoenicke.de/queue/#0,3m">transaction spike activity</a>.  Looks like the move is done for now.</p>
+
+:ET

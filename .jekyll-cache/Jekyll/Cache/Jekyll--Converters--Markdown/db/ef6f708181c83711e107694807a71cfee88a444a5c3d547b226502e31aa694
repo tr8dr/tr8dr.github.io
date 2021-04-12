@@ -1,0 +1,208 @@
+I"K'<p>Following on from the <a href="https://tr8dr.github.io/MLHardProblem2/">prior post</a>, want to discuss the problem of <strong>sample independence</strong>.
+Many machine learning models in finance deal with timeseries data, where samples used in training may be <strong>close together in
+time and not be independent of one another</strong>.  There are very few features in finance that do not make use of lookback periods.  Most 
+features do evaluate prior windows:</p>
+
+<ul>
+  <li>almost all technical indicators (SMA being the most basic example)</li>
+  <li>distribution based signals</li>
+  <li>decomposition based signals</li>
+  <li>traditional signal processing</li>
+  <li>volatility: rolling stdev, garch, instantaneous vol, etc</li>
+  <li>hawkes processes for estimation of variance or buy/sell imbalance</li>
+  <li>regime models</li>
+  <li>…</li>
+</ul>
+
+<p>The lookback period used in these features allows a feature at time <code class="language-plaintext highlighter-rouge">t</code> to <strong>overlap</strong> (and not be i.i.d) with respect to the <strong>last
+k features</strong> (where k is the lookback window size on one’s features).  The t .. t+k features, future in the sequence, also have
+overlap.  In general, if a given feature has lookback length k (for example a k period MA), the sample will share information
+with k prior samples and k future samples (or 2k) samples.</p>
+
+<p>Some of the best supervised machine learning approaches employ sampling during the process of training, for example:</p>
+
+<ul>
+  <li>deep learning models</li>
+  <li>random forest</li>
+  <li>genetic algorithms</li>
+  <li>…</li>
+</ul>
+
+<p>When samples lack inter-sample independence (i.e. are not i.i.d temporally), the machine learning model is often <strong>able to exploit the lookahead 
+bias</strong> introduced, overfitting the model in training.  Find some discussion of <a href="http://people.ee.duke.edu/~lcarin/IJCAI07-121.pdf">this problem here</a>.</p>
+
+<h2 id="discussion">Discussion</h2>
+<p>In our earlier random forest toy example we achieved perfect accuracy during training.  This was mostly due to the lack of
+independence across samples, where the <strong>model learned from the lookahead bias</strong> due to the overlapping ROC windows across
+samples.  This overfitting resulted in poor out of sample (OOS) performance.</p>
+
+<p>Applying the same to a deep learning model (such as a LSTM) will achieve similar results, with very high in-sample performance
+and poor OOS performance.</p>
+
+<p>Random forest does allow for a number of constraints which can <strong>reduce the impact of non-independent samples</strong> by:</p>
+
+<ul>
+  <li><strong>decreasing the # of samples used in fitting each tree in the forest</strong>
+    <ul>
+      <li>If the # of random samples (with replacement) per tree is reduced from N (the total # of samples) to M &lt; N, the probability
+of a given sample overlapping with another within the same tree is reduced from nearly 100% to a smaller probability of overlap.</li>
+    </ul>
+  </li>
+  <li><strong>reducing the complexity of each tree</strong> (for example tree depth)
+    <ul>
+      <li>this just reduces the number of rules that can exploit the lookahead bias.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>These just partially side-step the issue.  A better solution would be to remove the independence issue entirely.</p>
+
+<h2 id="a-solution-for-random-forest">A solution for Random Forest</h2>
+<p>I tend to use bayesian models and random-forest when applying supervised learning, as they are often more appropriate for my 
+feature sets than deep learning or alternative approaches.   In terms of adjusting for non-independence, I<br />
+modified scikit-learn’s <code class="language-plaintext highlighter-rouge">RandomForestClassifier</code> and <code class="language-plaintext highlighter-rouge">RandomForestRegressor</code> algorithms to address this problem.</p>
+
+<p>The change was as follows: adjusted the random forest classifier and regressor to allow for a user defined sampling 
+function.  This capability allows the user to account for samples that are not i.i.d relative to each other, ensuring 
+that each tree contains independent samples.  Find the <a href="https://github.com/tr8dr/scikit-learn">modified sklearn library</a> here.</p>
+
+<p>Recall that our prior model had perfect accuracy in training (a sure sign of overfitting):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>/</th>
+      <th>Positive</th>
+      <th>Negative</th>
+      <th>Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Positive</td>
+      <td>1723</td>
+      <td>0</td>
+      <td>100%</td>
+    </tr>
+    <tr>
+      <td>Negative</td>
+      <td>0</td>
+      <td>2057</td>
+      <td>100%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>and an out of sample outcome with 47% precision (more losing trades than winning):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>/</th>
+      <th>Positive</th>
+      <th>Negative</th>
+      <th>Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Positive</td>
+      <td>242</td>
+      <td>269</td>
+      <td>47%</td>
+    </tr>
+    <tr>
+      <td>Negative</td>
+      <td>526</td>
+      <td>587</td>
+      <td>53%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>By introducing a sampling that avoids overlapping samples:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">select_stride</span><span class="p">(</span><span class="n">random</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">skip</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">Series</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nrows</span><span class="o">/</span><span class="n">skip</span><span class="p">,</span><span class="n">samples</span><span class="p">))</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">raw</span><span class="p">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">offset</span><span class="p">,</span> <span class="n">nrows</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">indices</span>
+
+<span class="n">clf</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span>
+    <span class="n">n_estimators</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">sampling_function</span><span class="o">=</span><span class="n">select_stride</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">clf</span><span class="p">.</span><span class="n">fit</span> <span class="p">(</span><span class="n">training</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">training</span><span class="p">.</span><span class="n">label</span><span class="p">)</span>
+<span class="n">pred_train</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">training</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+<span class="n">pred_test</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">testing</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>we get the following confusion matrices.  For in-sample:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>/</th>
+      <th>Positive</th>
+      <th>Negative</th>
+      <th>Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Positive</td>
+      <td>806</td>
+      <td>867</td>
+      <td>48%</td>
+    </tr>
+    <tr>
+      <td>Negative</td>
+      <td>917</td>
+      <td>1190</td>
+      <td>56%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>and out-of-sample with a 51% accuracy:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>/</th>
+      <th>Positive</th>
+      <th>Negative</th>
+      <th>Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Positive</td>
+      <td>260</td>
+      <td>250</td>
+      <td>51%</td>
+    </tr>
+    <tr>
+      <td>Negative</td>
+      <td>508</td>
+      <td>606</td>
+      <td>54%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Our feature set and labels in the <a href="https://tr8dr.github.io/MLHardProblem1/">toy example</a> were not brilliant, so did not expect
+a workable strategy.  That said, by removing the sampling overlap we:</p>
+
+<ul>
+  <li>reduced training model overfit (as evidenced above with the accuracy &lt; 100%)</li>
+  <li>improved out-of-sample performance</li>
+</ul>
+
+<h2 id="conclusions">Conclusions</h2>
+<ul>
+  <li>Temporal non-independence of samples can degrade ML models substantially, causing bias and overfit</li>
+  <li>Training algorithms need to be modified to remove the impact of non-independent samples</li>
+</ul>
+
+:ET

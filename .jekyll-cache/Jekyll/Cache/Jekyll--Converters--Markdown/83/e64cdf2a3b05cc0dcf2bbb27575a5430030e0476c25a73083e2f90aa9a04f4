@@ -1,0 +1,252 @@
+I"�^<p>In the prior two posts, investigated:</p>
+
+<ul>
+  <li>Subspace Projections: <a href="https://tr8dr.github.io/FeatureSelection/">feature selection (1/3)</a></li>
+  <li>Information Geometric: <a href="https://tr8dr.github.io/FeatureSelection/">feature selection (2/3)</a></li>
+</ul>
+
+<p>In this post will evaluate feature importance as implemented by <strong>Random Forest</strong> and compare to <strong>Information Geometric</strong>
+approaches.  Here is an outline of what would like to discuss:</p>
+
+<ul>
+  <li>similarities between <strong>Decision Trees</strong> and <strong>Information Geometric</strong> approaches for feature selection</li>
+  <li>some of the deficiencies of Decision Trees</li>
+  <li>some areas for improvements</li>
+</ul>
+
+<p>As we will see, Random Forest’s approach to generating decision trees has some similarities to the 
+information geometric approach.</p>
+
+<h2 id="algorithm">Algorithm</h2>
+<p>A random forest is a bagging ensemble method, aggregating 100s or 1000s of decision tree models to determine a classification
+or regression model.  Random Forest will apply the following process:</p>
+
+<ol>
+  <li><strong>generate K trees</strong>, for each tree to be generated:
+    <ol>
+      <li><strong>sample a random subset</strong> from the training &lt;feature, label&gt; set</li>
+      <li>randomly select a <strong>subset of features</strong> to be applied in the current tree</li>
+      <li><strong>create a decision tree</strong> using one of 3 or 4 possible algorithms and splitting criteria</li>
+      <li>possibly <strong>trim tree to a maximum-depth</strong> or adjust tree according to other criteria</li>
+    </ol>
+  </li>
+  <li>prediction:
+    <ol>
+      <li>evaluate feature set against each decision tree: each tree will vote with a label</li>
+      <li>aggregate votes from each tree using a voting metric -&gt; this determines predicted label</li>
+    </ol>
+  </li>
+</ol>
+
+<p>There are many variations of the above.</p>
+
+<p>To understand random forests (and how they can be used for feature selection), lets consider the structure and construction 
+process of a decision tree.  Rather than describing the process in detail
+here would recommend reading <a href="http://www.ashukumar27.io/Decision-Trees-splitting/">How does a Decision Tree decide where to split?</a>,
+which describe tree structure and splitting decision making.</p>
+
+<p>The decision trees used in random forests are generally binary, and for continuous variables, split on an intercept
+that, using a probability metric, tries to weigh classes evenly so that the left and right children are predominantly
+class 0 and class 1 respectively (for a binary classifier).</p>
+
+<h2 id="example">Example</h2>
+<p>Let’s create a 2-dimensional feature set for a binary classification problem.  I will use this to discuss tree construction,
+information geometry, and feature selection:</p>
+
+<p>(see appendix for full code)</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">label0</span> <span class="o">=</span> <span class="n">rand2d</span> <span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="n">sigmas</span><span class="o">=</span><span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">corr</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">label0</span><span class="p">[</span><span class="s">"label"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">label1</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span>
+    <span class="n">rand2d</span> <span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">98</span><span class="p">],</span> <span class="n">sigmas</span><span class="o">=</span><span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">corr</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.6</span><span class="p">),</span>
+    <span class="n">rand2d</span> <span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">103</span><span class="p">],</span> <span class="n">sigmas</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">corr</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="p">])</span>
+<span class="n">label1</span><span class="p">[</span><span class="s">"label"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="nb">all</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">label0</span><span class="p">,</span> <span class="n">label0</span><span class="p">])</span>
+
+<span class="n">sns</span><span class="p">.</span><span class="n">scatterplot</span> <span class="p">(</span><span class="n">label0</span><span class="p">.</span><span class="n">x1</span><span class="p">,</span> <span class="n">label0</span><span class="p">.</span><span class="n">x2</span><span class="p">),</span>
+<span class="n">sns</span><span class="p">.</span><span class="n">scatterplot</span> <span class="p">(</span><span class="n">label1</span><span class="p">.</span><span class="n">x1</span><span class="p">,</span> <span class="n">label1</span><span class="p">.</span><span class="n">x2</span><span class="p">).</span><span class="n">set_title</span><span class="p">(</span><span class="s">"2 class, 2 feature classification"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/assets/2020-08-15/scatter.png" width="600" height="450" /></p>
+
+<h3 id="steps">Steps</h3>
+<p>The decision tree is built, as a binary tree, from the root downwards.  The algorithm does the following at each step:</p>
+
+<ul>
+  <li>decide which feature offers the most discrimination given the residual labels at the current node
+    <ul>
+      <li>based on gini score (you can read up on this in the link provide above), one of the features will be selected
+for a split</li>
+    </ul>
+  </li>
+  <li>determine where to effect the split
+    <ul>
+      <li>this will be of the form: “if x2 &lt; 99”</li>
+    </ul>
+  </li>
+  <li>2 child nodes are added to the current node, one for class 0 and the other for class 1
+    <ul>
+      <li>the left node will contain all (residual) samples where x2 &gt;= 99 (class 0)</li>
+      <li>the right node will contain all (residual) samples where x2 &lt; 99 (class 1)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Here is an example of a (partial) decision tree that might be created for the above data:</p>
+
+<p><img src="/assets/2020-08-15/tree.png" width="750" height="350" /></p>
+
+<h3 id="decision-tree-node-split--relationship-to-information-geometry">Decision tree node split &amp; relationship to information geometry</h3>
+<p>Each split in the decision tree creates an “updated” conditional distribution for each class (in the binary classification 
+case).  Gini, Entropy, or Chi-Squared measures are used find a split that maximizes this discrimination.   Recall that with our
+<strong>Information Geometric feature selection algorithm</strong>, we are also trying to find features that provide the maximum
+discrimination between classes.  For example if we examine the prior and conditional distributions
+for feature x2 for class = 0:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span><span class="p">),</span>
+<span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span><span class="p">[</span><span class="nb">all</span><span class="p">.</span><span class="n">label</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]).</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s">"$p(x_2)$ vs $p(x_2 \, \vert \, f(x) = 0)$"</span><span class="p">)</span>
+</code></pre></div></div>
+<p>The distribution (or Information Geometric) approach evaluates the degree of discrimination between prior and conditional 
+distributions with respect to labels.  We can see that feature x2 has clear impact on f(x), given that the two distributions are 
+quite distinct.</p>
+
+<p><img src="/assets/2020-08-15/pfx0.png" width="600" height="450" /></p>
+
+<p>Let’s look at how random forest tackles class discrimination from a distribution point-of-view.  The impact in of the 1st split in the 
+decision tree <strong>if x2 &lt; 99</strong>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span><span class="p">),</span>
+<span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span><span class="p">[</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span> <span class="o">&gt;=</span> <span class="mi">99</span><span class="p">]).</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s">"$p(x_2)$ vs $p(x_2 \, \vert \, x2 \geq 99)$"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The <strong>first decision tree split</strong> discriminates in a reasonable fashion, however, but needs to trim the right tail and capture some of the
+mass to the left in the distribution:</p>
+
+<p><img src="/assets/2020-08-15/ge99.png" width="600" height="450" /></p>
+
+<p>The tree will go on to add and remove “mass” from the conditional distributions at each level and node 
+in the decision tree to the point where either has replicated the sample distribution or has reached stopping 
+criteria.</p>
+
+<p>We can see that there is a <strong>similarity</strong> between the <strong>conditional distributions produced at node splits</strong> and <strong>conditional
+distributions based on label</strong>.  Indeed random forest would endeavor to make the perfect split that would replicate
+\(p(x_2 \, \vert \, f(x) == 0)\) in one split if it had the latitude to do so.</p>
+
+<h2 id="issues-with-random-forest">Issues with Random Forest</h2>
+<p>Decision trees, by design, only decompose the feature space on orthogonal axes.  One could consider more complex partitioning
+functions, involving 2 or more features per node.  For example:</p>
+
+<ul>
+  <li>linear on 2 features (would solve the rotation problem)</li>
+  <li>gausian kernel</li>
+  <li>…</li>
+</ul>
+
+<p>However the tree-construction complexity might lead to a NP-complete algorithm, and it would be harder to measure and
+contain model complexity.</p>
+
+<p>Here is a possible set of cuts a decision tree would perform (the first 8 splits) on our sample space in order to properly separate classes:</p>
+
+<p><img src="/assets/2020-08-15/cuts.png" width="600" height="450" /></p>
+
+<p>Note that the cuts are always orthogonal to the axis.  For class structure with non-orthogonal or rotate alignments (such as the
+above), a decision tree would need to make many splits to correctly classify up and down the diagonal separating the classes.</p>
+
+<p>While there are other classifiers (for example SVM), which can apply kernels, performing separation in a non-linear space,
+Random Forest does surprisingly well in spite of its limitations.  This is likely due to the non-linearity of averaging
+all of the different decision trees, allowing for net curvature in separating class regions.</p>
+
+<h2 id="feature-selection">Feature Selection</h2>
+<p>Feature importance in Random Forest is determined by observing how often a given feature is used and the net impact on
+discrimination (as measured by Gini impurity or entropy).  My approach to determining the best set of features with RF
+is to:</p>
+
+<ol>
+  <li>evaluate N random folds of the training set, for each data set sample:
+    <ol>
+      <li>generate a random forest</li>
+      <li>extract feature importance as determined by the model (net impact on discrimination)</li>
+      <li>aggregate score for each feature</li>
+    </ol>
+  </li>
+  <li>rank aggregate scores across the N runs and select top-K</li>
+</ol>
+
+<h3 id="comparison-with-information-geometric-approach">Comparison with Information Geometric Approach</h3>
+<p>It is hard to compare Random Forest and the specific Information Geometric approach I use universally; rather will provide some anecdotes:</p>
+
+<ul>
+  <li>I tend to get a 75% overlap between the top-K random forest features and information geometric approach</li>
+  <li>Depending on complexity of distributions (for example are the tails important), the information geometric approach
+may give better results</li>
+  <li>you may want to take the union of the 2 approaches (with a 25% overage on # of features) to retain maximum informational content</li>
+</ul>
+
+<h2 id="conclusions">Conclusions</h2>
+<p>Some final thoughts on feature selection:</p>
+
+<ul>
+  <li>is very dependent on composition of data and relationship to features
+    <ul>
+      <li>for example if f(x) is dependent in a non-linear fashion to the tails in a feature sub-space random-forest may or may
+not be able to isolate.  Information Geometric approach could also fail to recognize importance</li>
+    </ul>
+  </li>
+  <li>is dependent on target machine learning model
+    <ul>
+      <li>arguably information in features exists outside of model selected, however, some models may not be able to utilize all
+of the information in features</li>
+    </ul>
+  </li>
+  <li>is an imperfect process</li>
+</ul>
+
+<p>It is unlikely to be my last post on feature selection, as am always looking to refine my approach.  I will move on to 
+another topic for the next post however.</p>
+
+<h2 id="appendix-code">Appendix: Code</h2>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">cholesky</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
+<span class="k">def</span> <span class="nf">rand2d</span> <span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">sigmas</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">corr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+    <span class="c1"># produce covariance
+</span>    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sigmas</span><span class="p">)</span>
+    <span class="n">cor</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">corr</span><span class="p">],</span> <span class="p">[</span><span class="n">corr</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+    <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">matmul</span> <span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">matmul</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">cor</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>
+   
+    <span class="c1"># get iid random samples
+</span>    <span class="n">iid</span> <span class="o">=</span> <span class="n">norm</span><span class="p">.</span><span class="n">rvs</span> <span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+    
+    <span class="c1"># apply covariance
+</span>    <span class="n">chol</span> <span class="o">=</span> <span class="n">cholesky</span> <span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span> 
+    <span class="n">vectors</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">chol</span><span class="p">,</span> <span class="n">iid</span><span class="p">)</span>
+    
+    <span class="c1"># add mu's
+</span>    <span class="k">return</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'x1'</span><span class="p">:</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">mu</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">'x2'</span><span class="p">:</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">mu</span><span class="p">[</span><span class="mi">1</span><span class="p">]})</span>
+
+<span class="n">label0</span> <span class="o">=</span> <span class="n">rand2d</span> <span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="n">sigmas</span><span class="o">=</span><span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">corr</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">label0</span><span class="p">[</span><span class="s">"label"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">label1</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span>
+    <span class="n">rand2d</span> <span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">98</span><span class="p">],</span> <span class="n">sigmas</span><span class="o">=</span><span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">corr</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.6</span><span class="p">),</span>
+    <span class="n">rand2d</span> <span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">103</span><span class="p">],</span> <span class="n">sigmas</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">corr</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="p">])</span>
+<span class="n">label1</span><span class="p">[</span><span class="s">"label"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="nb">all</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">label0</span><span class="p">,</span> <span class="n">label0</span><span class="p">])</span>
+
+<span class="n">sns</span><span class="p">.</span><span class="n">scatterplot</span> <span class="p">(</span><span class="n">label0</span><span class="p">.</span><span class="n">x1</span><span class="p">,</span> <span class="n">label0</span><span class="p">.</span><span class="n">x2</span><span class="p">),</span>
+<span class="n">sns</span><span class="p">.</span><span class="n">scatterplot</span> <span class="p">(</span><span class="n">label1</span><span class="p">.</span><span class="n">x1</span><span class="p">,</span> <span class="n">label1</span><span class="p">.</span><span class="n">x2</span><span class="p">).</span><span class="n">set_title</span><span class="p">(</span><span class="s">"2 class, 2 feature classification"</span><span class="p">)</span>
+
+<span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span><span class="p">),</span>
+<span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span><span class="p">[</span><span class="nb">all</span><span class="p">.</span><span class="n">label</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]).</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s">"$p(x_2)$ vs $p(x_2 \, \vert \, f(x) = 0)$"</span><span class="p">)</span>
+
+<span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span><span class="p">),</span>
+<span class="n">sns</span><span class="p">.</span><span class="n">distplot</span><span class="p">(</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span><span class="p">[</span><span class="nb">all</span><span class="p">.</span><span class="n">x2</span> <span class="o">&gt;=</span> <span class="mi">99</span><span class="p">]).</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s">"$p(x_2)$ vs $p(x_2 \, \vert \, x2 \geq 99)$"</span><span class="p">)</span>
+</code></pre></div></div>
+
+:ET
