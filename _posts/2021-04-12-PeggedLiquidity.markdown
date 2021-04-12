@@ -94,7 +94,7 @@ The future for DEFI / DEX's is likely to be on one of the newer blockchains, one
 - interop with other chains
 
 In this regard, __Cosmos__ looks quite attractive.  There are other blockchains and DEFI projects in competition
-for the DEFI space (I will not enumerate them here).  The Ethereum Blockchain, unless the Bitcoin chain is 
+for the DEFI space (I will not enumerate them here).  The Ethereum Blockchain, unlike the Bitcoin chain is 
 innovating quickly, so while chains such as Cosmos are quite attractive, the momentum and the early lead of
 the Etherium ecosystem could still win out in the end.
 
