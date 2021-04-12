@@ -39,7 +39,7 @@ surface, has some significant issues:
 - __gas fees are expensive__ and progressing higher due to the large # of ERC tokens on Ethereum
 
 A traditional __market maker will adjust orders (liquidity positions) at high frequency__ to remain competitive and keep
-liquidity near the prevailing market price.  With a transaction overhead on the Ethereum blockcgain measured in 10 - 20 
+liquidity near the prevailing market price.  With a transaction overhead on the Ethereum blockchain measured in 10 - 20 
 minutes, would require the market maker to __spread liquidity across a wider price range__ in order to maintain participation 
 in the market, diluting capital efficiency and incurring more risk.
 
@@ -50,26 +50,27 @@ traditional market making.
 ## A Solution: Pegged Liquidity Contract
 Uniswap should introduce a __Pegged Liquidity__ order (contract).  The contract would indicate the following:
 
-- supply K coins total
-- allocate K coins according to some distribution __relative to the prevailing price__
-- the distribution is expressed as:
+- __allocate K coins__ according to some distribution __relative to the prevailing price__
+- __express the distribution__ as:
   * x coins at level price +/- offset1
   * y coins at level price +/- offset2
-  * ...  
-- put a limit on the lowest price willing to offer on
+  * ...
+  * up to a sum of K coins
+- __limit the lowest (highest) price__ will offer on 
   * this avoids following the price in a flash crash or just some level below which the market maker considers
     uneconomical
     
-As the prevailing market price moves (as determined by the oracle), the __liquidity moves with the price__.  This will
+As the prevailing market price moves (as determined by the oracle), the __liquidity automatically moves with the price__.  This will
 allow the market maker to participate in as many transactions as possible without having to issue a new directive
-on the chain to move the liquidity position when the market moves.  This avoids the ultra-high latency (10 - 20mins) and
-costs (gas) of moving the liquidity to meet the price.
+on the chain to move the liquidity position when the market moves.  This avoids both the ultra-high latency (10 - 20mins) and
+the costs (gas) of moving the liquidity to meet the price.
 
 One can imagine other variations of this where the liquidity positioning only changes when the price increments 
 by more than k%, keeping the liquidity/price offering constant for smaller moves.
     
 The proposed contract solves some of the concentration problem, however, it cannot go as far in offering the
-granularity of control that is possible with centralized order books.
+granularity of control that is possible with centralized order books.  With a faster and cheaper blockchain
+we can start approaching the efficiency of a central LOB.
 
 ## Future of Uniswap
 Uniswap's Achilles heel is that it is based on the Ethereum blockchain.  This has served it well until recently as many of the
