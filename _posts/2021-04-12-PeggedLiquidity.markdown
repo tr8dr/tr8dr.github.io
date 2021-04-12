@@ -79,7 +79,7 @@ presents substantial problems for a DEX:
 
 - non-deterministic transactions (required K blocks to verify transaction, much like bitcoin)
   * by non-deterministic mean that addition of a transaction to a block does not guarantee the transaction;
-    rather the transaction can be assured after a certain number of blocks are added on the branch with
+    rather the transaction can only be assured after a certain number of blocks are added on the branch with
     the transaction.
   * this increases latency substantially
 - scalability concerns (perhaps mitigated with side-chains)
