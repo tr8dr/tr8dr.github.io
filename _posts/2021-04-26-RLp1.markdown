@@ -21,7 +21,7 @@ While there are various profitable fixed stop-loss and profit target regimes for
 ignores market information post entry.  Here are some problems I want to solve:
 
 - __opportunity cost__
-  * The average profit available is ~200% of the prior amplitude (due to the scenario this model detects).
+  * The average profit available is ~150% of the prior amplitude (due to the scenario this model detects).
   * Selecting a conservative fixed exit target leaves "money on the table"
 - __risk reduction__
   * many of the risky scenarios involve a runaway trend post signal; this is detectable
