@@ -19,7 +19,7 @@ In the previous posts I described an approach to learning the exit [part 1](http
     are much slower to evaluate than DQN or PPO2
   * PPO2 produced the best results, roughly 30% better than DQN
 - the __results showed actionable positive P&L__ after accounting for transaction costs and expected slippage   
-  * however did not get all that close to the optimal reward in many scenarios
+  * however did not get as close as I would like to the optimal reward in many scenarios
 
 In terms of improving RL performance, thought I should add a feature that expresses a view on whether the 
 current price / volume pattern points to:
