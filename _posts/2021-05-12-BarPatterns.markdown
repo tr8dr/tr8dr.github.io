@@ -71,7 +71,7 @@ manner:
 
 ### Features
 The next question was, what set of features captures the geometry of the chart pattern?  I started with simple
-features, with the notion that could add more, as and if necessary:
+features, with the notion that could add more sophistication, as and if necessary:
 
 - __for each bar in our rolling window__ (for example 20 bars):
   * normalized open to high
