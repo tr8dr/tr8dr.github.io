@@ -92,8 +92,9 @@ Using a random forest classifier, obtained the following accuracies out-of-sampl
 
 <img src="/assets/2021-05-12/oos-1.png" width="500" height="100" />
 
-where the diagonal represents accuracies for labels { -2, -1, 0, +1, +2 } respectively.  The transition period labels
-{ -1, +1 } do especially well, which is useful.  I took the same model and applied it to another equity and it gave
+where the diagonal represents accuracies for labels { -2, -1, 0, +1, +2 } respectively.  I was surprised with the level
+of accuracy given the rather simple features.   The transition period labels
+{ -1, +1 } did especially well, which is useful.  I took the same model and applied it to other equitie and it gave
 similar accuracy, which was reassuring.
 
 A friend of mine (thanks Steve W.), suggested that I take the prior bar prediction and feed that into the model as a 
