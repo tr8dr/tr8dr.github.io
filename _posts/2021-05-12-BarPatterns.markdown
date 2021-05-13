@@ -37,7 +37,7 @@ activity as seen in a chart.
 
 ## A Possibility
 I came across an article [Identifying Candlestick Patterns using Deep Learning](https://towardsdatascience.com/identifying-candlestick-patterns-using-deep-learning-b7d706726874),
-which attempts to train a DL model to "become a chart reader".  The use of transfer learning, that of taking a trained
+which attempts to train a DL model to "become a chart reader".  The use of __transfer learning__, that of taking a trained
 vision model, stripping off the final layers and retraining a new set of final layers, was interesting.   The approach
 was to generate an image of 20 bars (and associated volume) and train one of the existing successful vision models
 to recognize patterns, predicting next period return.
@@ -70,7 +70,7 @@ manner:
 <img src="/assets/2021-05-12/labeling.png" width="600" height="450" />
 
 ### Features
-The next question was, what set of features capture the geometry of the chart pattern?  I started with the simple
+The next question was, what set of features captures the geometry of the chart pattern?  I started with simple
 features, with the notion that could add more, as and if necessary:
 
 - __for each bar in our rolling window__ (for example 20 bars):
