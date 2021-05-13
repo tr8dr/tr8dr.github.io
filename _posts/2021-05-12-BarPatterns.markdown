@@ -41,7 +41,7 @@ which attempts to train a DL model to "become a chart reader", effectively.  The
 
 - took one of the top trained million parameter deep-learning vision models as a basis
 - produced images of candlestick charts, incrementing a rolling window across time  
-- retrained the outer layers to learn a new objective (__transfer learning__)
+- retrained the outer layers to learn a new objective (__transfer learning__) against these chart images
 - attempted to predict a fixed period forward return
 
 The use of __transfer learning__, that of taking a trained
