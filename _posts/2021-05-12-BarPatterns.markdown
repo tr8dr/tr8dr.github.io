@@ -8,7 +8,7 @@ subtitle:
 categories:
 - strategies
 ---
-In the previous posts I described an approach to learning the exit [part 1](https://tr8dr.github.io/RLp1/),
+In the previous posts I described an Reinforcement Learning approach to "Learning the Exit" [part 1](https://tr8dr.github.io/RLp1/),
 [part 2](https://tr8dr.github.io/RLp2/).  My initial conclusions there have been:
 
 - __reward smoothing__ (with the labeler) __leads to more robust results__ than a reward on position exit
@@ -21,18 +21,18 @@ In the previous posts I described an approach to learning the exit [part 1](http
 - the __results showed actionable positive P&L__ after accounting for transaction costs and expected slippage   
   * however did not get as close as I would like to the optimal reward in many scenarios
 
-In terms of improving RL performance, thought I should add a feature that expresses a view on whether the 
-current price / volume pattern points to:
+In terms of improving RL performance, thought I could improve the information available to the agent by adding a feature
+that classifies the current price-action in terms of:
 
 - in __momentum__
 - in __trend__
 - momentum or trend __at an end or turning point__
 - __sideways price movement__ or __noise__
 
-We want the RL strategy to hold a position through momentum in the direction of profit and exit when the features
-signal an end to momentum or a turning point in direction.   I provided the model with a number of features that 
+The goal for the RL strategy is to hold a position through a momentum or trend period in the direction of profit, and exiting 
+when the features signal an end to momentum or a turning point in direction.   I provided the model with a number of features that 
 assist in this decision, however did not have a feature encoding any information that might be present in the 
-"candlestick pattern".  I am not a chartist, however there is undoubtedly information present in the price volume
+"chart".  I am not a chartist, however there is undoubtedly information present in the price volume
 activity as seen in a chart.
 
 ## A Possibility
