@@ -39,10 +39,10 @@ activity as seen in a chart.
 I came across an article [Identifying Candlestick Patterns using Deep Learning](https://towardsdatascience.com/identifying-candlestick-patterns-using-deep-learning-b7d706726874),
 which attempts to train a DL model to "become a chart reader", effectively.  The aproach:
 
-- took one of the top trained million parameter deep-learning vision models as a basis
-- produced images of candlestick charts, incrementing a rolling window across time  
-- retrained the outer layers to learn a new objective (__transfer learning__) against these chart images
-- attempted to predict a fixed period forward return
+- use one of the top trained (million parameter) __deep-learning vision models__ as the basis
+- __produced images of candlestick charts__, incrementing a rolling window across time  
+- __retrained the outer layers__ to learn a new objective (__transfer learning__) against these chart images
+- attempted to __predict a fixed period forward return__
 
 The use of __transfer learning__, that of taking a trained
 vision model, stripping off the final layers and retraining a new set of final layers, was interesting. 
