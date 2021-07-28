@@ -164,3 +164,11 @@ $$ pv(spot, time, rfr, sigma) - premium = 0 $$
 
 for some range of sigma.
 
+## Notes
+- deribit actually uses 6 second sampling rather than a 1min sampling during the average window
+  * my current Deribit data is at 1min granularity, so assuming a different sampling frequency.
+  * deribit does selectively use either 30min or 5min windows for the average as described above.
+- deribit's published IVs are priced assuming that the option is a European Black-Scholes
+  * their IV is not correct, so use at your own risk
+- the option underlier may be a blend of the two straddling futures if there is no matching future
+
