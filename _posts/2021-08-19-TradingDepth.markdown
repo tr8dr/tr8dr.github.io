@@ -1,7 +1,7 @@
 ---
 author: tr8dr
 comments: true
-date: 2021-07-28 11:00:00+00:00
+date: 2021-08-20 11:00:00+00:00
 layout: post
 title: Crypto Trading Depth
 subtitle:
