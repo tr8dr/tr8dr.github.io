@@ -105,30 +105,6 @@ affect liquidity (again BEAM/USDT, in the 2bps category):
 The results show that there is much more liquidity in higher volatility regimes in the bottom ranked coins.  The effect is
 less pronounced in the top ranked coins.
 
-## Excursions
-The assumption in this size analysis is that we are executing (passively or aggressively) during some fixed period and
-targetting some maximum entry cost (for example 2bps).  The price will undoubtedly drift outside of our target cost
-region during the execution period, particularly if is a longer period or in the context of volatility or momentum.
-
-Hence was interested to know what the average maximum excursion (in bps) was for a given cost target.  For coins like BEAM,
-this could be rather large depending on volatility context:
-
-<img src="/assets/2021-08-19/BEAM-excursion.png" width="600" height="450" />
-
-<img src="/assets/2021-08-19/BTC-excursion.png" width="600" height="450" />
-
-## Conclusions & Notes
-1. time-of-day is material, with a 45% impact in terms of addressable volume
-2. day-of-week variation is fairly marginal, with a 10% degradation over the weekend
-3. addressable size in the top pairs is quite substantial, and in the bottom pairs quite marginal
-4. some coins trade on multiple exchanges, increasing addressable size
-
-For those interested, happy to share the larger generated data set containing distribution by:  pair, side, 
-dow, tod, period, condition & level.
-
-I am not yet trading the referenced strategies, as need to set up an offshore entity or partner with a 3rd party.  Also, still
-have some more work to do in terms of portfolio sizing and blending, but otherwise look very attractive.
-
 
 ## Size By Coin (5mins)
 Here is the average size seen over a 5min execution window by coin and cost bucket (on Binance):
@@ -155,3 +131,27 @@ Here is the average size seen over a 5min execution window by coin and cost buck
 |   NMR/USDT | 1.1e+04 | 1.1e+04 | 1.2e+04 | 1.2e+04 |
 |  TROY/USDT | 1.0e+04 | 1.1e+04 | 1.1e+04 | 1.2e+04 |
 |   REP/USDT | 1.0e+04 | 1.0e+04 | 1.1e+04 | 1.2e+04 |
+
+For those interested, happy to share the larger generated data set containing distribution by:  pair, side,
+dow, tod, period, condition & level.
+
+## Excursions
+The assumption in this size analysis is that we are executing (passively or aggressively) during some fixed period and
+targetting some maximum entry cost (for example 2bps).  The price will undoubtedly drift outside of our target cost
+region during the execution period, particularly if is a longer period or in the context of volatility or momentum.
+
+Hence was interested to know what the average maximum excursion (in bps) was for a given cost target.  For coins like BEAM,
+this could be rather large depending on volatility context:
+
+<img src="/assets/2021-08-19/BEAM-excursion.png" width="600" height="450" />
+
+<img src="/assets/2021-08-19/BTC-excursion.png" width="600" height="450" />
+
+## Conclusions & Notes
+1. time-of-day is material, with a 45% impact in terms of addressable volume
+2. day-of-week variation is fairly marginal, with a 10% degradation over the weekend
+3. addressable size in the top pairs is quite substantial, and in the bottom pairs quite marginal
+4. some coins trade on multiple exchanges, increasing addressable size
+
+I am not yet trading the referenced strategies, as need to set up an offshore entity or partner with a 3rd party.  Also, still
+have some more work to do in terms of portfolio sizing and blending, but otherwise look very attractive.
