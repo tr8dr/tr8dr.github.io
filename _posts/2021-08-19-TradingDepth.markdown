@@ -91,10 +91,10 @@ for BEAM/USDT, in the 2bps cost category):
 
 As expected, the results show:
 
-1. Chasing momentum results in overall lower size
-   * for example buying during upward momentum only accumulated 8302$ of size versus 11K neutral or 16K in downward momentum.
+1. Chasing momentum results in, overall, lower size
+   * for example buying during upward momentum only accumulated 8k$ of size versus 11K$ neutral or 16K$ in downward momentum.
 2. Buying in downward momentum allows for more net accumulation
-   * needless to say, most size accumulated when the market is going towards your orders is passive
+   * needless to say, most size accumulated in this scenario can be passive
 
 ### Size in the context of different volatility regimes
 I divided volatility into low (<= 30% quantile), medium (30% < 70%), and high (> 70%) categories to see how this would
