@@ -126,7 +126,7 @@ this could be rather large depending on volatility context:
 For those interested, happy to share the larger generated data set containing distribution by:  pair, side, 
 dow, tod, period, condition & level.
 
-I am not yet trading the referenced strategies, as need to set up offshore entities or partner with a 3rd party.  Still
+I am not yet trading the referenced strategies, as need to set up an offshore entity or partner with a 3rd party.  Still
 have some more work to do in terms of portfolio sizing and blending, but otherwise look very attractive.
 
 
