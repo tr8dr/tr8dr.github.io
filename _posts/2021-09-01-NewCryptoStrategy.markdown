@@ -67,7 +67,7 @@ selection, providing a longer unseen period, from late March to current:
 
 <img src="/assets/2021-09-01/all.png" width="700" height="550" />
 
-This is really an excellent result, very good Sortino (22.4) and 4682% return.  The return seems too good to be true,
+This appears to an excellent result, with a Sortino of 22.4 and 4682% return.  However, the return seems __too good to be true__,
 and it is.  This result __assumes__ we can __execute in size__ (and at equal size) across stratlets.   In reality, scaling up
 this strategy would underweight the majority of stratlets and overweight a smaller set with higher liquidity (the 
 lower liquidity stratlets have higher returns than the highly liquid ones).
