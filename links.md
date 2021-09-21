@@ -20,4 +20,7 @@ permalink: /links
 * [https://tr8dr.wordpress.com/](https://tr8dr.wordpress.com/)
 
 ### Other
+* [Quanta Magazine](https://www.quantamagazine.org/)
+* [Hacker News](https://news.ycombinator.com/)
+* [kottke.org](kottke.org)
 * [scottlocklin.wordpress.com](scottlocklin.wordpress.com)
