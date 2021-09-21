@@ -10,8 +10,11 @@ permalink: /links
 * [http://epchan.blogspot.com/](http://epchan.blogspot.com/)
 * [http://jonathankinlay.com/](http://jonathankinlay.com/)
 * [https://markrbest.github.io/](https://markrbest.github.io/)
-* [https://quantocracy.com/](https://quantocracy.com/)
 * [https://alphaarchitect.com/](https://alphaarchitect.com/blog/)
+
+### Aggregators
+* [https://quantocracy.com/](https://quantocracy.com/)
+* [www.r-bloggers.com](www.r-bloggers.com)
 
 ### Old Stuff
 * [https://tr8dr.wordpress.com/](https://tr8dr.wordpress.com/)
