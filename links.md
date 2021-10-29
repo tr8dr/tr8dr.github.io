@@ -12,6 +12,9 @@ permalink: /links
 * [https://markrbest.github.io/](https://markrbest.github.io/)
 * [https://alphaarchitect.com/](https://alphaarchitect.com/blog/)
 
+### DEFI
+* [https://mudit.blog/](https://mudit.blog/)
+
 ### Aggregators
 * [https://quantocracy.com/](https://quantocracy.com/)
 * [www.r-bloggers.com](www.r-bloggers.com)
