@@ -7,6 +7,7 @@ permalink: /links
 
 ### Quantitative
 
+* [https://quantifiablequestion.wordpress.com/](https://quantifiablequestion.wordpress.com/)
 * [http://epchan.blogspot.com/](http://epchan.blogspot.com/)
 * [http://jonathankinlay.com/](http://jonathankinlay.com/)
 * [https://markrbest.github.io/](https://markrbest.github.io/)
@@ -27,3 +28,4 @@ permalink: /links
 * [Hacker News](https://news.ycombinator.com/)
 * [kottke.org](kottke.org)
 * [scottlocklin.wordpress.com](scottlocklin.wordpress.com)
+* [https://www.bzarg.com/](https://www.bzarg.com/)
