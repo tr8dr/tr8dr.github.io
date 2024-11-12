@@ -8,7 +8,7 @@ subtitle:
 categories:
 - strategies
 ---
-I have been building a MEV strategy in DEFI to perform both atomic and non-atomic arbitrage, backrunning, liquidations, etc.
+I have been building and improving a MEV strategy in DEFI to perform both atomic and non-atomic arbitrage, backrunning, liquidations, etc.
 In this post will focus on one of the hard algorithmic problems, namely, __determining the optimal size and path of
 arbitrage__ through swap pools and other protocols.
 
