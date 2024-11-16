@@ -1,0 +1,136 @@
+---
+author: tr8dr
+comments: true
+date: 2024-11-16 11:00:00+00:00
+layout: post
+title: Arbitrage In DEFI (p2)
+subtitle:
+categories:
+- strategies
+---
+As mentioned in my prior post [Arbitrage in DEFI (p1)](https://tr8dr.github.io/MEV-p1/), have been building and improving 
+a MEV strategy in DEFI to perform both atomic and non-atomic arbitrage, backrunning, liquidations, etc.   In this article
+we continue to focus on algorithms to detect and optimise arbitrage paths through the pool graph.
+
+Let us consider a simple graph of possible flows between 6 pools:
+
+<img src="/assets/2024-11-16/graph1.png" />
+
+## Bute-force approach (for small graphs)
+For smaller graphs, we can avoid evaluating a complex optimisation by simply doing a DFS traversal to
+determine all possible acyclic paths from source -> sink:
+
+<img src="/assets/2024-11-16/paths.png" />
+
+Given all possible paths we can __evaluate the optimal flow through each path__ in order to maximize outcome.  As we put
+more flow (size) through a given pool, we are penalized with an increasingly worse price and outgoing size.  Hence the
+__payout for a profitable path will be a concave function__ such as this:
+
+<img src="/assets/2024-11-16/profit.png" />
+
+An optimisation on the path determines the size of the flow through the path that maximizes this function.  For a small
+enough graph we could generate all such paths and maximize each one with a simple solver.  However, the
+approach of __generating all acyclic paths grows combinatorially and is not feasible__ for a large graph.
+
+## Optimisation
+We want to find the weights through this graph such that the (outgoing - incoming) flow from source -> sink (our wallet) 
+is maximized.  We can frame this problem graphically as a max-flow problem where we:
+
+$$
+\begin{align*}
+\text{maximize} \quad & \sum_{i \in N_{in}(sink)} \Lambda_i w_{i,sink} & \text{(flow into sink)} \\
+\text{where:} \quad & \\
+& \Lambda_i = g_i(\Delta_i) & \forall i \in N \text{ (node transfer functions)} \\
+& \Delta_i = \sum_{j \in N_{in}(i)} \Lambda_j w_{j,i} & \forall i \in N \text{ (node input flows)} \\
+& \Lambda_{src} = c & \text{(source capacity)} \\
+\text{subject to:} \quad & \\
+& \sum_{j \in N_{out}(i)} w_{i,j} \leq 1, \, w_{i,j} \in [0,1] & \forall i \in N \text{ (weight constraints)} \\
+\text{where:} \quad & \\
+& N \text{ is the set of all nodes} \\
+& E \text{ is the set of all edges} \\
+& N_{in}(i) \text{ is the set of nodes with edges into node } i \\
+& N_{out}(i) \text{ is the set of nodes with edges from node } i \\
+& g_i(\cdot) \text{ is the non-linear transfer function for node } i \\
+& w_{i,j} \text{ is the weight of edge } (i,j) \\
+& \Lambda_i \text{ is the output flow from node } i \\
+& \Delta_i \text{ is the input flow to node } i \\
+& c \text{ is the source node capacity}
+\end{align*}
+$$
+
+Note that the __node transfer function__ (or amount of flow output for a given input) is as follows for a Uniswap V2-like
+AMM:
+
+$$
+g_i(\Delta) = r_{\Lambda} - \frac{k}{r_{\Delta} + \gamma \Delta}
+$$
+
+### Quasi-Convex Optimisation
+In the paper [Optimal Routing for Constant Function Market Maker](https://arxiv.org/pdf/2204.05238), Angeris et al
+showed an elegant approach to determine the optimal amounts to be traded across a collection of pools maximizing some
+utility function (for example maximize output of ETH) within the constraints of CFMMs. 
+
+$$
+\begin{align*}
+\text{maximize} \quad & U(\Psi) & \text{(utility function)} \\
+\text{subject to} \quad & \Psi = \sum_{i=1}^m A_i(\Lambda_i - \Delta_i) & \text{(trading function inputs } \Delta \text{, outputs } \Lambda \text{)}\\
+& \varphi_i(R_i + \gamma_i\Delta_i - \Lambda_i) = \varphi_i(R_i), & \forall i \in m \text{ (constant product constraint)} \\
+& \Delta_i \geq 0, \; \Lambda_i \geq 0 & \forall i \in m \text{ (traded amounts must be positive)}
+\end{align*}
+$$
+
+where:
+- $(\Delta_i, \Lambda_i)$ is the amount in and amount out for the ith pool
+- $A_i$ indicates the adjacency matrix between tokens
+- $\phi_i(*)$ is an expression of the constant product reserve constraint
+- $U(\Psi)$ is the utility function, for example: $U(\Psi) = prices_{mkt} \times \Psi$, maximizing market value of 
+  net output
+  
+
+The setup of this problem works beautifully on small to medium sized acyclic graphs, but is not stable or becomes overwhelmed in the following
+contexts:
+
+- graphs with cyclical feedback
+  * the possible sub-graphs present different discontinuous gradient functions
+- large graphs with hundreds of thousands of edges
+  * many of these algorithms have complexity $O(n^3 log(1/\epsilon))$, which does not scale for large sized
+    problems in the 10K+ range
+
+We can make this approach workable if we can significantly reduce the graph, focusing on profitable neighborhoods, and 
+remove cycles prior to applying the optimisation (I may elaborate on this in a subsequent post).
+
+### Heuristic Optimisation
+As mentioned above convex optimisation approaches have issues in tackling the complexity and scale of these
+graphs.  __Heuristic optimisation__ algorithms such as [differential evolution (DE)](https://en.wikipedia.org/wiki/Differential_evolution) 
+and [simulated annealing](https://en.wikipedia.org/wiki/Simulated_annealing) are well suited to finding a global optimum 
+in the presence of:
+
+- multiple local minima
+- discontinuous solution surfaces
+- mixed integer and continuous domain
+
+Neither of these solutions is guaranteed to arrive at the absolute maximum (minimum) due to their stochastic nature,
+however can get quite close or alternatively converge arbitrarily close to the optimum with increased iteration.
+
+__differential evolution__ is more capable than __simulated annealing__ in terms of being better able to explore the 
+solution space.  This benefit comes at the cost of requiring more computation, at least in early iterations, however. 
+__DE__ is a special case of a __genetic algorithm__, one where new individuals from generation to generation are expressed with gradient 
+aware operators. I found that __differential evolution__ provided the most consistent results of the two.  
+
+## Example
+We want to find profitable paths through the following, given a source with 20 WETH:
+
+- Uniswap V2: ETH -> USDT (20 -> 40000.03872)
+  * reserves: 20100184, 10000, fee: 30bps
+- Sushiswap V2: USDT -> ETH (26000 -> 14.01859)
+  * reserves: 20020000, 10830 fee: 30bps
+- Uniswap V3: USDT -> ETH (4000 -> 2.2)
+  * reserves: 20000000, 11040, fee: 30bps 
+- Shibaswap V2: USDT -> ETH
+  * reserves: 23000000, 10000, fee: 30bps
+- Sushiswap V2 USDT -> BTC (10000 -> 0.20)
+  * reserves: 101, 5000000, fee: 30bps
+- Sushiswap V2: BTC -> ETH (0.2 -> 7)
+  * reserves: 100, 3518, fee: 30bps
+
+The initial graph looks like:
