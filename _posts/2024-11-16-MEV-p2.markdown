@@ -99,6 +99,18 @@ contexts:
 We can make this approach workable if we can significantly reduce the graph, focusing on profitable neighborhoods, and 
 remove cycles prior to applying the optimisation (I may elaborate on this in a subsequent post).
 
+### Max-Flow Optimisation (for acyclic graphs)
+If the graph is acyclic we can efficiently solve the max-flow problem as follows:
+
+1. determine a function to resolve flows given a weight vector (essentially a graph traversal)
+2. determine the gradient of the network with respect to weights
+3. determine objective function (for example maximize flow into sink node)
+3. use L-BFGS-B to solve for the objective
+
+This works well, but does require that the graph has no cycles.  With cycles a continuous gradient cannot be determined
+due to the discontinuity of an edge / cycle being in the graph or excluded.  If the number of cycles is limited
+can evaluate each graph alternative separately. 
+
 ### Heuristic Optimisation
 As mentioned above convex optimisation approaches have issues in tackling the complexity and scale of these
 graphs.  __Heuristic optimisation__ algorithms such as [differential evolution (DE)](https://en.wikipedia.org/wiki/Differential_evolution) 
@@ -115,7 +127,22 @@ however can get quite close or alternatively converge arbitrarily close to the o
 __differential evolution__ is more capable than __simulated annealing__ in terms of being better able to explore the 
 solution space.  This benefit comes at the cost of requiring more computation, at least in early iterations, however. 
 __DE__ is a special case of a __genetic algorithm__, one where new individuals from generation to generation are expressed with gradient 
-aware operators. I found that __differential evolution__ provided the most consistent results of the two.  
+aware operators. 
+
+I found that __differential evolution__ provided the most consistent results of the two.  
+
+### Bellman-Ford Optimisation
+In the BF construction of the problem, we do not solve for max-flow directly, rather look for minimum paths through 
+the graph where the weight is the $-log(price_i)$.  If we circuit from, say, WETH -> ... -> WETH and have a negative
+cumulative path, then have found a profitable path.
+
+The problem with BF algorithms are that they:
+- assume that price remains constant with size
+  * so have to test for profitable paths on some unit size, later requiring a secondary optimisation to determine
+    appropriate size
+- algorithm cannot handle cycles
+  * there are various heuristic approaches to trimming the graph in the presence of a cycle, but does not lead to
+    optimal solutions.  It can still provide viable, if not optimal, paths however.
 
 ## Example
 We want to find profitable paths through the following, given a source with 20 WETH:
@@ -133,4 +160,136 @@ We want to find profitable paths through the following, given a source with 20 W
 - Sushiswap V2: BTC -> ETH (0.2 -> 7)
   * reserves: 100, 3518, fee: 30bps
 
-The initial graph looks like:
+Each node is directional, for example if have a UNI2 WETH/USDT pool the graph will contain a WETH/USDT and USDT/WETH
+node.  Here is the raw graph without optimisation and the graph post optimisation:
+
+<img src="/assets/2024-11-16/raw-vs-optimised.png" />
+
+### Solving with Differential Evolution
+Differential Evolution is not the most efficient approach, however is one of the simplest and one that can achieve
+global optimum.  I will discuss a hybrid approach to reduce the size of the graph and allow for more economical
+solutions.
+
+The approach to solving the max-flow problem with DE is as follows:
+
+1. determine a function to resolve flows given a weight vector
+   * this is essentially a graph traversal where we evaluate incoming flows x weights and compute outgoing
+     flows
+   * we also terminate and zero-out cycles when detected
+2. write a function to enforce constraints $\sum_i w_i \le 1$ and also sparsify weight vectors
+   * for sparsification I use $\bar{w}^k / \sum_i w_i^k $, pushing values towards 0 or 1
+2. determine an objective function
+   * maximize sum of incoming flows into sink node
+3. write or use an existing differential evolution algorithm
+   * python `scikit` has a `differential_evolution` function
+   * rust has crates for this as well `differential_evolution` and `metaheuristics_nature`
+   * I've written a DE / GA implementation for C++ as well
+
+## Code
+Realistically one will implement optimisation in Rust or C++, however for a more concise presentation am providing
+some python code snippets here for the DE approach.
+
+### Pool
+This class defines functionality for a Uniswap V2-like pool or top-of-book V3 pools.  Here is the output function
+defining amount out for a given amount in, according the CFMM constraints:
+
+```python
+def amount_out(self, amount_in: float) -> float:
+    """
+    Compute the amount of money outgoing given incoming amount in the pool.  The amount in should be in
+    the units of cin.
+    """
+    if self.reserve0 >= 0 and amount_in > 0.0:
+        k = self.reserve0 * self.reserve1
+        gamma = 1.0 - self.fee
+        return self.reserve1 - k / (self.reserve0 + gamma * amount_in)
+    else:
+        return amount_in
+```
+
+### Resolving Flows
+We want to determine flows through the graph, given a weight vector (where the weights define the % of flow per edge):
+
+```python
+def resolve_graph(self, weights, amount_in):
+    """
+    Resolve the graph for given weights and amount in
+    """
+    def resolve_flow(weights: np.array, node: Pool, seen: set, eps=1e-4) -> float:
+        if node.id in seen:
+            return node.outgoing if not np.isnan(node.outgoing) else 0.0
+        if not np.isnan(node.outgoing):
+            return node.outgoing
+
+        seen.add(node.id)
+
+        # normalize incoming edges to sum <= 1 and sparsify
+        incoming_edges = node.incoming_edges(self.G)
+        self.normalize_and_sparsify (incoming_edges)
+        
+        # determine amount of inflow
+        inflow = 0.0
+        for edge in incoming_edges:
+            iedge = self.edge_to_idx[edge]
+            ancestor = self.pools[edge[0]]
+            w = weights[iedge]
+            if w > eps:
+                out = resolve_flow(weights, ancestor, seen)
+                inflow += w * out
+            else:
+                out = 0.0
+
+            # clamp near-zero weights to 0
+            if out == 0.0:
+                weights[iedge] = 0.0
+
+        node.outgoing = node.amount_out(inflow)
+        node.incoming = inflow
+
+        return node.outgoing
+
+    seen = set([])
+    for node in self.nodes:
+        node.reset()
+    for node in self.nodes:
+        resolve_flow(weights, node, seen)
+```
+
+### Objective
+Our objective function is simple:
+1. resolve flows across graph for a given weight vector
+2. determine output flow vs input flow
+
+```python
+def objective(weights: np.ndarray) -> float:
+    """
+    Maximize profit as: `flow reaching sink` - `amount in` (as a minimization problem)
+    """
+    self.resolve_graph(weights, amount_in)
+    return -(self.pools[sink].outgoing - amount_in)
+
+```
+
+### Optimisation
+We then call our DE optimiser:
+
+```python
+result = differential_evolution(
+    func = objective,
+    bounds = ranges,
+    maxiter = maxiter,
+    popsize = population,
+    disp = True,
+)
+self.weights = result.x
+self.profit = -result.fun - amount_in
+```
+
+## Upcoming
+There is no entirely satisfactory solution for the optimisation problem in that:
+1. the presence of cycles invalidates a number of optimisation approaches
+2. the scale of the problem is such that traditional optimisers cannot solve efficiently
+3. heuristic optimisation can determine the global maximum +/- the stochastic nature of the algorithm
+
+In a subsequent post will elaborate on an approach to reduce the problem significantly, making more amenable to
+a variety of these approaches.
