@@ -266,7 +266,7 @@ def objective(weights: np.ndarray) -> float:
     Maximize profit as: `flow reaching sink` - `amount in` (as a minimization problem)
     """
     self.resolve_graph(weights, amount_in)
-    return -(self.pools[sink].outgoing - amount_in)
+    return -(self.pools[sink].incoming - amount_in)
 
 ```
 
