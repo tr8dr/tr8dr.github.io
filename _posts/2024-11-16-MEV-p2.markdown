@@ -109,7 +109,8 @@ If the graph is acyclic we can efficiently solve the max-flow problem as follows
 
 This works well, but does require that the graph has no cycles.  With cycles a continuous gradient cannot be determined
 due to the discontinuity of an edge / cycle being in the graph or excluded.  If the number of cycles is limited
-can evaluate each graph alternative separately. 
+can evaluate each graph alternative separately.  I have an implementation for this that arrives at the global optimum
+in approximately $O(n\, log(n))$ time.
 
 ### Heuristic Optimisation
 As mentioned above convex optimisation approaches have issues in tackling the complexity and scale of these
@@ -124,12 +125,17 @@ in the presence of:
 Neither of these solutions is guaranteed to arrive at the absolute maximum (minimum) due to their stochastic nature,
 however can get quite close or alternatively converge arbitrarily close to the optimum with increased iteration.
 
-__differential evolution__ is more capable than __simulated annealing__ in terms of being better able to explore the 
-solution space.  This benefit comes at the cost of requiring more computation, at least in early iterations, however. 
+__Differential Evolution__ is more capable than __Simulated Annealing__ in terms of being better able to explore the 
+solution space.  This benefit comes at the cost of requiring more computation, at least in early iterations, however.
 __DE__ is a special case of a __genetic algorithm__, one where new individuals from generation to generation are expressed with gradient 
-aware operators. 
+aware operators.  SA has some similarities to DE in the sense that the parameter vector is perturbed
+in each successive generation, however one can easily get stuck in some part of the domain depending on the starting
+point of the simulation.  DE is able to continue to explore the domain, though will tend to do so less in successive
+generations.
 
-I found that __differential evolution__ provided the most consistent results of the two.  
+I found that __differential evolution__ was consistently able to arrive close to the global optimum, 
+whereas simulated annealing might find a local optimum 50% of the time.  SA could be adjusted to
+use a sampling (multi-simulation) approach and take the maximum over those simulations.
 
 ### Bellman-Ford Optimisation
 In the BF construction of the problem, we do not solve for max-flow directly, rather look for minimum paths through 
@@ -147,27 +153,27 @@ The problem with BF algorithms are that they:
 ## Example
 We want to find profitable paths through the following, given a source with 20 WETH:
 
-- Uniswap V2: ETH -> USDT (20 -> 40000.03872)
+- Uniswap V2: ETH <-> USDT
   * reserves: 20100184, 10000, fee: 30bps
-- Sushiswap V2: USDT -> ETH (26000 -> 14.01859)
+- Sushiswap V2: USDT <-> ETH
   * reserves: 20020000, 10830 fee: 30bps
-- Uniswap V3: USDT -> ETH (4000 -> 2.2)
+- Uniswap V3: USDT <-> ETH
   * reserves: 20000000, 11040, fee: 30bps 
-- Shibaswap V2: USDT -> ETH
+- Shibaswap V2: USDT <-> ETH
   * reserves: 23000000, 10000, fee: 30bps
-- Sushiswap V2 USDT -> BTC (10000 -> 0.20)
+- Sushiswap V2 USDT <-> BTC
   * reserves: 101, 5000000, fee: 30bps
-- Sushiswap V2: BTC -> ETH (0.2 -> 7)
+- Sushiswap V2: BTC <-> ETH
   * reserves: 100, 3518, fee: 30bps
 
-Each node is directional, for example if have a UNI2 WETH/USDT pool the graph will contain a WETH/USDT and USDT/WETH
-node.  Here is the raw graph without optimisation and the graph post optimisation:
+Here is the raw graph without optimisation and the graph post optimisation (where we have identified
+the optimal flow through the graph from source -> sink):
 
 <img src="/assets/2024-11-16/raw-vs-optimised.png" />
 
 ### Solving with Differential Evolution
 Differential Evolution is not the most efficient approach, however is one of the simplest and one that can achieve
-global optimum.  I will discuss a hybrid approach to reduce the size of the graph and allow for more economical
+global optimum.  In a subsequent post I will discuss a hybrid approach to reduce the size of the graph and allow for more economical
 solutions.
 
 The approach to solving the max-flow problem with DE is as follows:
